@@ -1,58 +1,204 @@
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum Object {
     FERRIS,
+    ROCKET,
 }
 
-fn get_printable_character(object: &Object) -> String {
-    match object {
-        Object::FERRIS => return String::from("🦀"),
+#[derive(Debug, Copy, Clone, PartialEq)]
+enum Word {
+    FERRIS,
+    ROCKET,
+    IS,
+    YOU,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+enum Element {
+    Object(Object),
+    Word(Word),
+}
+
+enum Direction {
+    UP,
+    DOWN,
+    RIGHT,
+    LEFT,
+}
+
+fn get_printable_character(element: &Option<Element>) -> String {
+    match element {
+        Some(Element::Object(Object::FERRIS)) => return String::from("🦀"),
+        Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
+        Some(Element::Word(Word::FERRIS)) => return String::from("F"),
+        Some(Element::Word(Word::ROCKET)) => return String::from("R"),
+        Some(Element::Word(Word::IS)) => return String::from("="),
+        Some(Element::Word(Word::YOU)) => return String::from("U"),
+        None => return String::from("."),
+        // _ => return String::from("?"),
     };
 }
 
-struct ObjectWithLocation {
+struct ElementWithLocation {
     x: usize,
     y: usize,
-    object: Object,
+    element: Element,
 }
 
 struct Level {
     width: usize,
     height: usize,
-    objects_with_locations: Vec<ObjectWithLocation>,
+    grid: Vec<Option<Element>>,
+    elements_with_locations: Vec<ElementWithLocation>,
+}
+
+fn get_word(object: &Object) -> Word {
+    match object {
+        Object::FERRIS => Word::FERRIS,
+        Object::ROCKET => Word::ROCKET,
+    }
 }
 
 impl Level {
     fn new(width: usize, height: usize) -> Level {
-        Level {
+        assert!(width > 3 && height > 3); // Required for is_you
+        let mut level = Level {
             width,
             height,
-            objects_with_locations: Vec::new(),
+            grid: Vec::with_capacity(width * height),
+            elements_with_locations: Vec::new(),
+        };
+
+        for _ in 0..height * width {
+            level.grid.push(None)
+        }
+        level
+    }
+
+    fn get_grid_index(&self, x: usize, y: usize) -> usize {
+        x * self.width + y
+    }
+
+    fn clear_grid(&mut self) {
+        self.grid.clear();
+        for _ in 0..self.height * self.width {
+            self.grid.push(None)
         }
     }
 
-    fn add_object(&mut self, x: usize, y: usize, object: Object) {
-        self.objects_with_locations
-            .push(ObjectWithLocation { x, y, object })
+    fn add_object(&mut self, x: usize, y: usize, element: Element) {
+        let index = self.get_grid_index(x, y);
+        self.grid[index] = Some(element);
+        self.elements_with_locations
+            .push(ElementWithLocation { x, y, element })
+    }
+
+    fn next(&mut self, direction: Direction) {
+        let mut new_elements_with_locations: Vec<ElementWithLocation> =
+            Vec::with_capacity(self.elements_with_locations.len());
+
+        for element_with_location in &self.elements_with_locations {
+            let mut new_x = element_with_location.x;
+            let mut new_y = element_with_location.y;
+            if self.is_you(&element_with_location.element) {
+                match direction {
+                    Direction::UP => new_y = if new_y == 0 { 0 } else { new_y - 1 },
+                    Direction::DOWN => {
+                        new_y = if new_y == self.height - 1 {
+                            self.height - 1
+                        } else {
+                            new_y + 1
+                        }
+                    }
+                    Direction::RIGHT => {
+                        new_x = if new_x == self.width - 1 {
+                            self.width - 1
+                        } else {
+                            new_x + 1
+                        }
+                    }
+                    Direction::LEFT => new_x = if new_x == 0 { 0 } else { new_x - 1 },
+                }
+            }
+
+            new_elements_with_locations.push(ElementWithLocation {
+                x: new_x,
+                y: new_y,
+                element: element_with_location.element,
+            });
+        }
+
+        self.elements_with_locations = new_elements_with_locations;
+        self.clear_grid();
+        for element_with_location in &self.elements_with_locations {
+            let index = self.get_grid_index(element_with_location.x, element_with_location.y);
+            self.grid[index] = Some(element_with_location.element);
+        }
+    }
+
+    fn is_you(&self, element: &Element) -> bool {
+        match element {
+            Element::Word(_) => false,
+            Element::Object(object) => {
+                // Vertical rules
+                for x in 0..self.width {
+                    for y in 0..self.height - 2 {
+                        match (
+                            self.grid[self.get_grid_index(x, y)],
+                            self.grid[self.get_grid_index(x, y + 1)],
+                            self.grid[self.get_grid_index(x, y + 2)],
+                        ) {
+                            (
+                                Some(Element::Word(word)),
+                                Some(Element::Word(Word::IS)),
+                                Some(Element::Word(Word::YOU)),
+                            ) => {
+                                if word == get_word(&object) {
+                                    return true;
+                                } else {
+                                    continue;
+                                }
+                            }
+                            _ => continue,
+                        }
+                    }
+                }
+
+                // Horizontal rules
+                for y in 0..self.height {
+                    for x in 0..self.width - 2 {
+                        match (
+                            self.grid[self.get_grid_index(x, y)],
+                            self.grid[self.get_grid_index(x + 1, y)],
+                            self.grid[self.get_grid_index(x + 2, y)],
+                        ) {
+                            (
+                                Some(Element::Word(word)),
+                                Some(Element::Word(Word::IS)),
+                                Some(Element::Word(Word::YOU)),
+                            ) => {
+                                if word == get_word(&object) {
+                                    return true;
+                                } else {
+                                    continue;
+                                }
+                            }
+                            _ => continue,
+                        }
+                    }
+                }
+
+                false
+            }
+        }
     }
 
     fn print(&self) {
-        let mut characters: Vec<Vec<String>> = Vec::with_capacity(self.width);
-        for _ in 0..self.width {
-            let mut line = Vec::with_capacity(self.height);
-            for _ in 0..self.height {
-                line.push(String::from(" "));
-            }
-            characters.push(line);
-        }
-
-        for object_with_location in &self.objects_with_locations {
-            characters[object_with_location.x][object_with_location.y] =
-                get_printable_character(&object_with_location.object);
-        }
-
         for y in 0..self.height {
             let mut line = String::with_capacity(self.width);
             for x in 0..self.width {
-                line.push_str(&characters[x][y]);
+                line.push_str(&get_printable_character(
+                    &self.grid[self.get_grid_index(x, y)],
+                ))
             }
             println!("{}", line);
         }
@@ -60,9 +206,19 @@ impl Level {
 }
 
 fn main() {
-    let mut level = Level::new(10, 10);
-    level.add_object(2, 3, Object::FERRIS);
-    level.add_object(6, 6, Object::FERRIS);
+    let mut level = Level::new(12, 12);
+    level.add_object(2, 3, Element::Object(Object::FERRIS));
+    level.add_object(6, 6, Element::Object(Object::FERRIS));
+    level.add_object(0, 5, Element::Object(Object::ROCKET));
+    level.add_object(7, 9, Element::Word(Word::ROCKET));
+    level.add_object(8, 9, Element::Word(Word::IS));
+    level.add_object(9, 9, Element::Word(Word::YOU));
     //println!("{}", get_printable_character(&Object::FERRIS));
+    level.print();
+    println!("");
+    level.next(Direction::UP);
+    // level.next(Direction::LEFT);
+    // level.next(Direction::RIGHT);
+    // level.next(Direction::DOWN);
     level.print();
 }
