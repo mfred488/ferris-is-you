@@ -1,5 +1,5 @@
 extern crate termion;
-
+use std::collections::VecDeque;
 use std::convert::TryInto;
 use std::io::{stdin, stdout, Write};
 use termion::event::Key;
@@ -74,6 +74,7 @@ struct Level {
     width: usize,
     height: usize,
     grid: Vec<Vec<Element>>,
+    old_grids: VecDeque<Vec<Vec<Element>>>,
 }
 
 fn get_noun(object: &Object) -> Noun {
@@ -92,6 +93,7 @@ impl Level {
             width,
             height,
             grid: Vec::with_capacity(width * height),
+            old_grids: VecDeque::new(),
         };
 
         for _ in 0..height * width {
@@ -111,18 +113,23 @@ impl Level {
         self.grid[index].push(element);
     }
 
+    fn undo(&mut self) {
+        match self.old_grids.pop_back() {
+            Some(grid) => self.grid = grid,
+            None => {}
+        }
+    }
+
     fn next(&mut self, direction: Direction) -> bool {
         let mut new_grid: Vec<Vec<Element>> = self.grid.clone();
-        let mut moves_to_do: Vec<(Element, usize, usize, &Direction)> = Vec::new();
+        let mut moves_to_do: VecDeque<(Element, usize, usize, &Direction)> = VecDeque::new();
 
         for x in 0..self.width {
             for y in 0..self.height {
                 for element in &self.grid[self.get_grid_index(x, y)] {
-                    let mut new_x = x;
-                    let mut new_y = y;
                     if self.is_adjective(&element, Adjective::YOU) {
                         if self.can_move(x, y, &direction) {
-                            moves_to_do.push((element.clone(), x, y, &direction));
+                            moves_to_do.push_back((element.clone(), x, y, &direction));
                         }
                     }
                 }
@@ -130,7 +137,7 @@ impl Level {
         }
 
         while moves_to_do.len() > 0 {
-            let (element_to_move, x, y, direction_to_move) = moves_to_do.pop().unwrap();
+            let (element_to_move, x, y, direction_to_move) = moves_to_do.pop_front().unwrap();
             let index_to_remove = new_grid[self.get_grid_index(x, y)]
                 .iter()
                 .position(|&el| el == element_to_move)
@@ -149,7 +156,7 @@ impl Level {
             new_grid[self.get_grid_index(new_x, new_y)].push(element_to_move);
             for element_in_next_location in &self.grid[self.get_grid_index(new_x, new_y)] {
                 if self.is_adjective(element_in_next_location, Adjective::PUSH) {
-                    moves_to_do.push((
+                    moves_to_do.push_back((
                         element_in_next_location.clone(),
                         new_x,
                         new_y,
@@ -159,6 +166,7 @@ impl Level {
             }
         }
 
+        self.old_grids.push_back(self.grid.clone());
         self.grid = new_grid;
 
         self.is_win()
@@ -370,6 +378,8 @@ fn main() {
         match c.unwrap() {
             Key::Char('q') => break,
             Key::Esc => break,
+            Key::Char('u') => level.undo(),
+            Key::Backspace => level.undo(),
             Key::Left => is_win = level.next(Direction::LEFT),
             Key::Right => is_win = level.next(Direction::RIGHT),
             Key::Up => is_win = level.next(Direction::UP),
