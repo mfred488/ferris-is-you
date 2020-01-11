@@ -14,9 +14,19 @@ enum Object {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Word {
+    Noun(Noun),
+    IS,
+    Adjective(Adjective),
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+enum Noun {
     FERRIS,
     ROCKET,
-    IS,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+enum Adjective {
     YOU,
 }
 
@@ -37,10 +47,10 @@ fn get_printable_character(element: &Option<Element>) -> String {
     match element {
         Some(Element::Object(Object::FERRIS)) => return String::from("🦀"),
         Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
-        Some(Element::Word(Word::FERRIS)) => return String::from("Fe"),
-        Some(Element::Word(Word::ROCKET)) => return String::from("Ro"),
+        Some(Element::Word(Word::Noun(Noun::FERRIS))) => return String::from("Fe"),
+        Some(Element::Word(Word::Noun(Noun::ROCKET))) => return String::from("Ro"),
         Some(Element::Word(Word::IS)) => return String::from("=="),
-        Some(Element::Word(Word::YOU)) => return String::from("U "),
+        Some(Element::Word(Word::Adjective(Adjective::YOU))) => return String::from("U "),
         None => return String::from(".."),
         // _ => return String::from("?"),
     };
@@ -59,10 +69,10 @@ struct Level {
     elements_with_locations: Vec<ElementWithLocation>,
 }
 
-fn get_word(object: &Object) -> Word {
+fn get_noun(object: &Object) -> Noun {
     match object {
-        Object::FERRIS => Word::FERRIS,
-        Object::ROCKET => Word::ROCKET,
+        Object::FERRIS => Noun::FERRIS,
+        Object::ROCKET => Noun::ROCKET,
     }
 }
 
@@ -107,7 +117,7 @@ impl Level {
         for element_with_location in &self.elements_with_locations {
             let mut new_x = element_with_location.x;
             let mut new_y = element_with_location.y;
-            if self.is_you(&element_with_location.element) {
+            if self.is_adjective(&element_with_location.element, Adjective::YOU) {
                 match direction {
                     Direction::UP => new_y = if new_y == 0 { 0 } else { new_y - 1 },
                     Direction::DOWN => {
@@ -143,7 +153,7 @@ impl Level {
         }
     }
 
-    fn is_you(&self, element: &Element) -> bool {
+    fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
         match element {
             Element::Word(_) => false,
             Element::Object(object) => {
@@ -156,11 +166,11 @@ impl Level {
                             self.grid[self.get_grid_index(x, y + 2)],
                         ) {
                             (
-                                Some(Element::Word(word)),
+                                Some(Element::Word(Word::Noun(noun))),
                                 Some(Element::Word(Word::IS)),
-                                Some(Element::Word(Word::YOU)),
+                                Some(Element::Word(Word::Adjective(local_adjective))),
                             ) => {
-                                if word == get_word(&object) {
+                                if noun == get_noun(&object) && adjective == local_adjective {
                                     return true;
                                 } else {
                                     continue;
@@ -180,11 +190,11 @@ impl Level {
                             self.grid[self.get_grid_index(x + 2, y)],
                         ) {
                             (
-                                Some(Element::Word(word)),
+                                Some(Element::Word(Word::Noun(noun))),
                                 Some(Element::Word(Word::IS)),
-                                Some(Element::Word(Word::YOU)),
+                                Some(Element::Word(Word::Adjective(local_adjective))),
                             ) => {
-                                if word == get_word(&object) {
+                                if noun == get_noun(&object) && adjective == local_adjective {
                                     return true;
                                 } else {
                                     continue;
@@ -226,9 +236,9 @@ fn main() {
     level.add_object(2, 3, Element::Object(Object::FERRIS));
     level.add_object(6, 6, Element::Object(Object::FERRIS));
     level.add_object(0, 5, Element::Object(Object::ROCKET));
-    level.add_object(7, 9, Element::Word(Word::FERRIS));
+    level.add_object(7, 9, Element::Word(Word::Noun(Noun::FERRIS)));
     level.add_object(8, 9, Element::Word(Word::IS));
-    level.add_object(9, 9, Element::Word(Word::YOU));
+    level.add_object(9, 9, Element::Word(Word::Adjective(Adjective::YOU)));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
