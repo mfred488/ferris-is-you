@@ -278,8 +278,8 @@ impl Level {
         }
 
         // Vertical rules
-        for x in 0..self.width {
-            for y in 0..self.height - 2 {
+        for x in 0..self.width - 2 {
+            for y in 0..self.height {
                 for el1 in &self.grid[self.get_grid_index(x, y)] {
                     for el2 in &self.grid[self.get_grid_index(x + 1, y)] {
                         for el3 in &self.grid[self.get_grid_index(x + 2, y)] {
