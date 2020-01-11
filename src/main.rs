@@ -43,7 +43,7 @@ enum Direction {
     LEFT,
 }
 
-fn get_printable_character(element: &Option<Element>) -> String {
+fn get_printable_character(element: Option<&Element>) -> String {
     match element {
         Some(Element::Object(Object::FERRIS)) => return String::from("🦀"),
         Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
@@ -65,7 +65,7 @@ struct ElementWithLocation {
 struct Level {
     width: usize,
     height: usize,
-    grid: Vec<Option<Element>>,
+    grid: Vec<Vec<Element>>,
     elements_with_locations: Vec<ElementWithLocation>,
 }
 
@@ -87,7 +87,7 @@ impl Level {
         };
 
         for _ in 0..height * width {
-            level.grid.push(None)
+            level.grid.push(Vec::new())
         }
         level
     }
@@ -99,13 +99,13 @@ impl Level {
     fn clear_grid(&mut self) {
         self.grid.clear();
         for _ in 0..self.height * self.width {
-            self.grid.push(None)
+            self.grid.push(Vec::new())
         }
     }
 
     fn add_object(&mut self, x: usize, y: usize, element: Element) {
         let index = self.get_grid_index(x, y);
-        self.grid[index] = Some(element);
+        self.grid[index].push(element);
         self.elements_with_locations
             .push(ElementWithLocation { x, y, element })
     }
@@ -149,7 +149,7 @@ impl Level {
         self.clear_grid();
         for element_with_location in &self.elements_with_locations {
             let index = self.get_grid_index(element_with_location.x, element_with_location.y);
-            self.grid[index] = Some(element_with_location.element);
+            self.grid[index].push(element_with_location.element);
         }
     }
 
@@ -160,23 +160,27 @@ impl Level {
                 // Vertical rules
                 for x in 0..self.width {
                     for y in 0..self.height - 2 {
-                        match (
-                            self.grid[self.get_grid_index(x, y)],
-                            self.grid[self.get_grid_index(x, y + 1)],
-                            self.grid[self.get_grid_index(x, y + 2)],
-                        ) {
-                            (
-                                Some(Element::Word(Word::Noun(noun))),
-                                Some(Element::Word(Word::IS)),
-                                Some(Element::Word(Word::Adjective(local_adjective))),
-                            ) => {
-                                if noun == get_noun(&object) && adjective == local_adjective {
-                                    return true;
-                                } else {
-                                    continue;
+                        for el1 in &self.grid[self.get_grid_index(x, y)] {
+                            for el2 in &self.grid[self.get_grid_index(x, y + 1)] {
+                                for el3 in &self.grid[self.get_grid_index(x, y + 2)] {
+                                    match (el1, el2, el3) {
+                                        (
+                                            Element::Word(Word::Noun(noun)),
+                                            Element::Word(Word::IS),
+                                            Element::Word(Word::Adjective(local_adjective)),
+                                        ) => {
+                                            if noun == &get_noun(&object)
+                                                && &adjective == local_adjective
+                                            {
+                                                return true;
+                                            } else {
+                                                continue;
+                                            }
+                                        }
+                                        _ => continue,
+                                    }
                                 }
                             }
-                            _ => continue,
                         }
                     }
                 }
@@ -184,23 +188,27 @@ impl Level {
                 // Horizontal rules
                 for y in 0..self.height {
                     for x in 0..self.width - 2 {
-                        match (
-                            self.grid[self.get_grid_index(x, y)],
-                            self.grid[self.get_grid_index(x + 1, y)],
-                            self.grid[self.get_grid_index(x + 2, y)],
-                        ) {
-                            (
-                                Some(Element::Word(Word::Noun(noun))),
-                                Some(Element::Word(Word::IS)),
-                                Some(Element::Word(Word::Adjective(local_adjective))),
-                            ) => {
-                                if noun == get_noun(&object) && adjective == local_adjective {
-                                    return true;
-                                } else {
-                                    continue;
+                        for el1 in &self.grid[self.get_grid_index(x, y)] {
+                            for el2 in &self.grid[self.get_grid_index(x + 1, y)] {
+                                for el3 in &self.grid[self.get_grid_index(x + 2, y)] {
+                                    match (el1, el2, el3) {
+                                        (
+                                            Element::Word(Word::Noun(noun)),
+                                            Element::Word(Word::IS),
+                                            Element::Word(Word::Adjective(local_adjective)),
+                                        ) => {
+                                            if noun == &get_noun(&object)
+                                                && &adjective == local_adjective
+                                            {
+                                                return true;
+                                            } else {
+                                                continue;
+                                            }
+                                        }
+                                        _ => continue,
+                                    }
                                 }
                             }
-                            _ => continue,
                         }
                     }
                 }
@@ -215,14 +223,13 @@ impl Level {
         for y in 0..self.height {
             let mut line = String::with_capacity(self.width);
             for x in 0..self.width {
-                line.push_str(&get_printable_character(
-                    &self.grid[self.get_grid_index(x, y)],
-                ))
+                let first_element = self.grid[self.get_grid_index(x, y)].get(0);
+                line.push_str(&get_printable_character(first_element))
             }
             write!(
                 stdout,
                 "{}{}",
-                termion::cursor::Goto(1, y.try_into().unwrap()),
+                termion::cursor::Goto(1, (1 + y).try_into().unwrap()),
                 line
             )
             .unwrap();
