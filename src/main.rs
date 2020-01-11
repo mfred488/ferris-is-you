@@ -70,18 +70,10 @@ fn get_printable_character(element: Option<&Element>) -> String {
     };
 }
 
-#[derive(Debug)]
-struct ElementWithLocation {
-    x: usize,
-    y: usize,
-    element: Element,
-}
-
 struct Level {
     width: usize,
     height: usize,
     grid: Vec<Vec<Element>>,
-    elements_with_locations: Vec<ElementWithLocation>,
 }
 
 fn get_noun(object: &Object) -> Noun {
@@ -100,7 +92,6 @@ impl Level {
             width,
             height,
             grid: Vec::with_capacity(width * height),
-            elements_with_locations: Vec::new(),
         };
 
         for _ in 0..height * width {
@@ -115,61 +106,52 @@ impl Level {
         x * self.height + y
     }
 
-    fn clear_grid(&mut self) {
-        self.grid.clear();
-        for _ in 0..self.height * self.width {
-            self.grid.push(Vec::new())
-        }
-    }
-
     fn add_object(&mut self, x: usize, y: usize, element: Element) {
         let index = self.get_grid_index(x, y);
         self.grid[index].push(element);
-        self.elements_with_locations
-            .push(ElementWithLocation { x, y, element })
     }
 
     fn next(&mut self, direction: Direction) -> bool {
-        let mut new_elements_with_locations: Vec<ElementWithLocation> =
-            Vec::with_capacity(self.elements_with_locations.len());
+        let mut new_grid: Vec<Vec<Element>> = Vec::with_capacity(self.grid.len());
 
-        for element_with_location in &self.elements_with_locations {
-            let mut new_x = element_with_location.x;
-            let mut new_y = element_with_location.y;
-            if self.is_adjective(&element_with_location.element, Adjective::YOU) {
-                match self.can_move(&element_with_location, &direction) {
-                    Some((local_new_x, local_new_y)) => {
-                        new_x = local_new_x;
-                        new_y = local_new_y;
+        for _ in 0..self.width * self.height {
+            new_grid.push(Vec::new());
+        }
+
+        for x in 0..self.width {
+            for y in 0..self.height {
+                for element in &self.grid[self.get_grid_index(x, y)] {
+                    let mut new_x = x;
+                    let mut new_y = y;
+                    if self.is_adjective(&element, Adjective::YOU) {
+                        match self.can_move(&element, x, y, &direction) {
+                            Some((local_new_x, local_new_y)) => {
+                                new_x = local_new_x;
+                                new_y = local_new_y;
+                            }
+                            None => {}
+                        }
                     }
-                    None => {}
+
+                    new_grid[self.get_grid_index(new_x, new_y)].push(element.clone());
                 }
             }
-
-            new_elements_with_locations.push(ElementWithLocation {
-                x: new_x,
-                y: new_y,
-                element: element_with_location.element,
-            });
         }
 
-        self.elements_with_locations = new_elements_with_locations;
-        self.clear_grid();
-        for element_with_location in &self.elements_with_locations {
-            let index = self.get_grid_index(element_with_location.x, element_with_location.y);
-            self.grid[index].push(element_with_location.element);
-        }
+        self.grid = new_grid;
 
         self.is_win()
     }
 
     fn can_move(
         &self,
-        element_with_location: &ElementWithLocation,
+        element: &Element,
+        x: usize,
+        y: usize,
         direction: &Direction,
     ) -> Option<(usize, usize)> {
-        let mut new_x = element_with_location.x;
-        let mut new_y = element_with_location.y;
+        let mut new_x = x;
+        let mut new_y = y;
         // Objects can't go off limits
         match direction {
             Direction::UP => {
@@ -210,12 +192,7 @@ impl Level {
 
             // Can't move if push objects can't be pushed
             if self.is_adjective(&element_in_next_location, Adjective::PUSH) {
-                let neighbour_with_location = ElementWithLocation {
-                    x: new_x,
-                    y: new_y,
-                    element: element_with_location.element,
-                };
-                match self.can_move(&neighbour_with_location, direction) {
+                match self.can_move(&element_in_next_location, new_x, new_y, direction) {
                     Some(_) => {}
                     None => {
                         return None;
@@ -297,16 +274,18 @@ impl Level {
     }
 
     fn is_win(&self) -> bool {
-        for element_with_location in &self.elements_with_locations {
-            if !self.is_adjective(&element_with_location.element, Adjective::YOU) {
-                continue;
-            }
+        for x in 0..self.width {
+            for y in 0..self.height {
+                for element in &self.grid[self.get_grid_index(x, y)] {
+                    if !self.is_adjective(element, Adjective::YOU) {
+                        continue;
+                    }
 
-            let elements_at_same_location =
-                &self.grid[self.get_grid_index(element_with_location.x, element_with_location.y)];
-            for element_at_same_location in elements_at_same_location {
-                if self.is_adjective(element_at_same_location, Adjective::WIN) {
-                    return true;
+                    for element_at_same_location in &self.grid[self.get_grid_index(x, y)] {
+                        if self.is_adjective(element_at_same_location, Adjective::WIN) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
