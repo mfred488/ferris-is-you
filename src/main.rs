@@ -12,6 +12,7 @@ enum Object {
     ROCKET,
     FLAG,
     WALL,
+    WATER,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -27,6 +28,7 @@ enum Noun {
     ROCKET,
     FLAG,
     WALL,
+    WATER,
     TEXT,
 }
 
@@ -36,6 +38,7 @@ enum Adjective {
     WIN,
     STOP,
     PUSH,
+    SINK,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -77,16 +80,19 @@ fn get_printable_character(element: Option<&Element>) -> String {
         Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
         Some(Element::Object(Object::FLAG)) => return String::from("🚩"),
         Some(Element::Object(Object::WALL)) => return String::from("🧱"),
+        Some(Element::Object(Object::WATER)) => return String::from("🌊"),
         Some(Element::Text(Text::Noun(Noun::FERRIS))) => return String::from("Fe"),
         Some(Element::Text(Text::Noun(Noun::ROCKET))) => return String::from("Ro"),
         Some(Element::Text(Text::Noun(Noun::FLAG))) => return String::from("Fl"),
         Some(Element::Text(Text::Noun(Noun::WALL))) => return String::from("Wa"),
+        Some(Element::Text(Text::Noun(Noun::WATER))) => return String::from("Wt"),
         Some(Element::Text(Text::Noun(Noun::TEXT))) => return String::from("Te"),
         Some(Element::Text(Text::IS)) => return String::from("=="),
         Some(Element::Text(Text::Adjective(Adjective::YOU))) => return String::from("U "),
         Some(Element::Text(Text::Adjective(Adjective::WIN))) => return String::from("Wi"),
         Some(Element::Text(Text::Adjective(Adjective::STOP))) => return String::from("St"),
         Some(Element::Text(Text::Adjective(Adjective::PUSH))) => return String::from("Pu"),
+        Some(Element::Text(Text::Adjective(Adjective::SINK))) => return String::from("Si"),
         None => return String::from(".."),
         // _ => return String::from("?"),
     };
@@ -107,6 +113,7 @@ fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::ROCKET) => Noun::ROCKET,
         Element::Object(Object::FLAG) => Noun::FLAG,
         Element::Object(Object::WALL) => Noun::WALL,
+        Element::Object(Object::WATER) => Noun::WATER,
     }
 }
 
@@ -188,6 +195,20 @@ impl Level {
                         new_y,
                         direction_to_move,
                     ));
+                }
+            }
+        }
+
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let cell_has_sink = new_grid[self.get_grid_index(x, y)]
+                    .iter()
+                    .find(|&element| self.is_adjective(element, Adjective::SINK))
+                    .is_some();
+
+                if cell_has_sink {
+                    new_grid[self.get_grid_index(x, y)]
+                        .retain(|&element| self.is_adjective(&element, Adjective::SINK));
                 }
             }
         }
@@ -364,6 +385,7 @@ fn main() {
     level.add_object(2, 3, Element::Object(Object::FERRIS));
     level.add_object(1, 9, Element::Object(Object::FLAG));
     level.add_object(2, 9, Element::Object(Object::FLAG));
+    level.add_object(2, 11, Element::Object(Object::WATER));
     level.add_object(0, 0, Element::Object(Object::WALL));
     level.add_object(6, 6, Element::Object(Object::FERRIS));
     level.add_object(0, 5, Element::Object(Object::ROCKET));
@@ -379,6 +401,9 @@ fn main() {
     level.add_object(7, 12, Element::Text(Text::Noun(Noun::FLAG)));
     level.add_object(8, 12, Element::Text(Text::IS));
     level.add_object(9, 12, Element::Text(Text::Adjective(Adjective::PUSH)));
+    level.add_object(7, 13, Element::Text(Text::Noun(Noun::WATER)));
+    level.add_object(8, 13, Element::Text(Text::IS));
+    level.add_object(9, 13, Element::Text(Text::Adjective(Adjective::SINK)));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
