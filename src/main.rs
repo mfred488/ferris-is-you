@@ -15,7 +15,7 @@ enum Object {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-enum Word {
+enum Text {
     Noun(Noun),
     IS,
     Adjective(Adjective),
@@ -41,7 +41,7 @@ enum Adjective {
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Element {
     Object(Object),
-    Word(Word),
+    Text(Text),
 }
 
 enum Direction {
@@ -60,9 +60,9 @@ struct NounIsAdjectiveRule {
 fn get_rule(el1: &Element, el2: &Element, el3: &Element) -> Option<NounIsAdjectiveRule> {
     match (el1, el2, el3) {
         (
-            Element::Word(Word::Noun(noun)),
-            Element::Word(Word::IS),
-            Element::Word(Word::Adjective(adjective)),
+            Element::Text(Text::Noun(noun)),
+            Element::Text(Text::IS),
+            Element::Text(Text::Adjective(adjective)),
         ) => Some(NounIsAdjectiveRule {
             noun: noun.clone(),
             adjective: adjective.clone(),
@@ -77,16 +77,16 @@ fn get_printable_character(element: Option<&Element>) -> String {
         Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
         Some(Element::Object(Object::FLAG)) => return String::from("🚩"),
         Some(Element::Object(Object::WALL)) => return String::from("🧱"),
-        Some(Element::Word(Word::Noun(Noun::FERRIS))) => return String::from("Fe"),
-        Some(Element::Word(Word::Noun(Noun::ROCKET))) => return String::from("Ro"),
-        Some(Element::Word(Word::Noun(Noun::FLAG))) => return String::from("Fl"),
-        Some(Element::Word(Word::Noun(Noun::WALL))) => return String::from("Wa"),
-        Some(Element::Word(Word::Noun(Noun::TEXT))) => return String::from("Te"),
-        Some(Element::Word(Word::IS)) => return String::from("=="),
-        Some(Element::Word(Word::Adjective(Adjective::YOU))) => return String::from("U "),
-        Some(Element::Word(Word::Adjective(Adjective::WIN))) => return String::from("Wi"),
-        Some(Element::Word(Word::Adjective(Adjective::STOP))) => return String::from("St"),
-        Some(Element::Word(Word::Adjective(Adjective::PUSH))) => return String::from("Pu"),
+        Some(Element::Text(Text::Noun(Noun::FERRIS))) => return String::from("Fe"),
+        Some(Element::Text(Text::Noun(Noun::ROCKET))) => return String::from("Ro"),
+        Some(Element::Text(Text::Noun(Noun::FLAG))) => return String::from("Fl"),
+        Some(Element::Text(Text::Noun(Noun::WALL))) => return String::from("Wa"),
+        Some(Element::Text(Text::Noun(Noun::TEXT))) => return String::from("Te"),
+        Some(Element::Text(Text::IS)) => return String::from("=="),
+        Some(Element::Text(Text::Adjective(Adjective::YOU))) => return String::from("U "),
+        Some(Element::Text(Text::Adjective(Adjective::WIN))) => return String::from("Wi"),
+        Some(Element::Text(Text::Adjective(Adjective::STOP))) => return String::from("St"),
+        Some(Element::Text(Text::Adjective(Adjective::PUSH))) => return String::from("Pu"),
         None => return String::from(".."),
         // _ => return String::from("?"),
     };
@@ -102,7 +102,7 @@ struct Level {
 
 fn get_noun(element: &Element) -> Noun {
     match element {
-        Element::Word(_) => Noun::TEXT,
+        Element::Text(_) => Noun::TEXT,
         Element::Object(Object::FERRIS) => Noun::FERRIS,
         Element::Object(Object::ROCKET) => Noun::ROCKET,
         Element::Object(Object::FLAG) => Noun::FLAG,
@@ -367,18 +367,18 @@ fn main() {
     level.add_object(0, 0, Element::Object(Object::WALL));
     level.add_object(6, 6, Element::Object(Object::FERRIS));
     level.add_object(0, 5, Element::Object(Object::ROCKET));
-    level.add_object(7, 9, Element::Word(Word::Noun(Noun::FERRIS)));
-    level.add_object(8, 9, Element::Word(Word::IS));
-    level.add_object(9, 9, Element::Word(Word::Adjective(Adjective::YOU)));
-    level.add_object(7, 10, Element::Word(Word::Noun(Noun::ROCKET)));
-    level.add_object(8, 10, Element::Word(Word::IS));
-    level.add_object(9, 10, Element::Word(Word::Adjective(Adjective::WIN)));
-    level.add_object(7, 11, Element::Word(Word::Noun(Noun::WALL)));
-    level.add_object(8, 11, Element::Word(Word::IS));
-    level.add_object(9, 11, Element::Word(Word::Adjective(Adjective::STOP)));
-    level.add_object(7, 12, Element::Word(Word::Noun(Noun::FLAG)));
-    level.add_object(8, 12, Element::Word(Word::IS));
-    level.add_object(9, 12, Element::Word(Word::Adjective(Adjective::PUSH)));
+    level.add_object(7, 9, Element::Text(Text::Noun(Noun::FERRIS)));
+    level.add_object(8, 9, Element::Text(Text::IS));
+    level.add_object(9, 9, Element::Text(Text::Adjective(Adjective::YOU)));
+    level.add_object(7, 10, Element::Text(Text::Noun(Noun::ROCKET)));
+    level.add_object(8, 10, Element::Text(Text::IS));
+    level.add_object(9, 10, Element::Text(Text::Adjective(Adjective::WIN)));
+    level.add_object(7, 11, Element::Text(Text::Noun(Noun::WALL)));
+    level.add_object(8, 11, Element::Text(Text::IS));
+    level.add_object(9, 11, Element::Text(Text::Adjective(Adjective::STOP)));
+    level.add_object(7, 12, Element::Text(Text::Noun(Noun::FLAG)));
+    level.add_object(8, 12, Element::Text(Text::IS));
+    level.add_object(9, 12, Element::Text(Text::Adjective(Adjective::PUSH)));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
