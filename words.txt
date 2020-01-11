@@ -1,0 +1,31 @@
+Nouns:
+* every object (ferris, rocket, etc.)
+* all
+* empty
+
+Adjectives:
+* you
+* win
+* push
+* sink
+* hot
+* melt
+* defeat
+* stop
+* float
+* shift
+* more
+* move
+* open
+* shut (?)
+
+Verbs:
+* is
+* has
+
+Misc:
+* not
+* on
+* and
+* near
+* lonely

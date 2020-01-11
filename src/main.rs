@@ -1,3 +1,11 @@
+extern crate termion;
+
+use std::convert::TryInto;
+use std::io::{stdin, stdout, Write};
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Object {
     FERRIS,
@@ -29,11 +37,11 @@ fn get_printable_character(element: &Option<Element>) -> String {
     match element {
         Some(Element::Object(Object::FERRIS)) => return String::from("🦀"),
         Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
-        Some(Element::Word(Word::FERRIS)) => return String::from("F"),
-        Some(Element::Word(Word::ROCKET)) => return String::from("R"),
-        Some(Element::Word(Word::IS)) => return String::from("="),
-        Some(Element::Word(Word::YOU)) => return String::from("U"),
-        None => return String::from("."),
+        Some(Element::Word(Word::FERRIS)) => return String::from("Fe"),
+        Some(Element::Word(Word::ROCKET)) => return String::from("Ro"),
+        Some(Element::Word(Word::IS)) => return String::from("=="),
+        Some(Element::Word(Word::YOU)) => return String::from("U "),
+        None => return String::from(".."),
         // _ => return String::from("?"),
     };
 }
@@ -192,7 +200,8 @@ impl Level {
         }
     }
 
-    fn print(&self) {
+    fn print(&self, stdout: &mut termion::raw::RawTerminal<std::io::Stdout>) {
+        write!(stdout, "{}", termion::clear::All).unwrap();
         for y in 0..self.height {
             let mut line = String::with_capacity(self.width);
             for x in 0..self.width {
@@ -200,8 +209,15 @@ impl Level {
                     &self.grid[self.get_grid_index(x, y)],
                 ))
             }
-            println!("{}", line);
+            write!(
+                stdout,
+                "{}{}",
+                termion::cursor::Goto(1, y.try_into().unwrap()),
+                line
+            )
+            .unwrap();
         }
+        stdout.flush().unwrap();
     }
 }
 
@@ -210,15 +226,35 @@ fn main() {
     level.add_object(2, 3, Element::Object(Object::FERRIS));
     level.add_object(6, 6, Element::Object(Object::FERRIS));
     level.add_object(0, 5, Element::Object(Object::ROCKET));
-    level.add_object(7, 9, Element::Word(Word::ROCKET));
+    level.add_object(7, 9, Element::Word(Word::FERRIS));
     level.add_object(8, 9, Element::Word(Word::IS));
     level.add_object(9, 9, Element::Word(Word::YOU));
-    //println!("{}", get_printable_character(&Object::FERRIS));
-    level.print();
-    println!("");
-    level.next(Direction::UP);
-    // level.next(Direction::LEFT);
-    // level.next(Direction::RIGHT);
-    // level.next(Direction::DOWN);
-    level.print();
+
+    let stdin = stdin();
+    let mut stdout = stdout().into_raw_mode().unwrap();
+
+    write!(
+        stdout,
+        "{}{}{}",
+        termion::clear::All,
+        termion::cursor::Goto(1, 1),
+        termion::cursor::Hide
+    )
+    .unwrap();
+    level.print(&mut stdout);
+
+    for c in stdin.keys() {
+        match c.unwrap() {
+            Key::Char('q') => break,
+            Key::Esc => break,
+            Key::Left => level.next(Direction::LEFT),
+            Key::Right => level.next(Direction::RIGHT),
+            Key::Up => level.next(Direction::UP),
+            Key::Down => level.next(Direction::DOWN),
+            _ => {}
+        }
+        level.print(&mut stdout);
+    }
+
+    write!(stdout, "{}", termion::cursor::Show).unwrap();
 }
