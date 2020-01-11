@@ -112,11 +112,8 @@ impl Level {
     }
 
     fn next(&mut self, direction: Direction) -> bool {
-        let mut new_grid: Vec<Vec<Element>> = Vec::with_capacity(self.grid.len());
-
-        for _ in 0..self.width * self.height {
-            new_grid.push(Vec::new());
-        }
+        let mut new_grid: Vec<Vec<Element>> = self.grid.clone();
+        let mut moves_to_do: Vec<(Element, usize, usize, &Direction)> = Vec::new();
 
         for x in 0..self.width {
             for y in 0..self.height {
@@ -124,16 +121,40 @@ impl Level {
                     let mut new_x = x;
                     let mut new_y = y;
                     if self.is_adjective(&element, Adjective::YOU) {
-                        match self.can_move(&element, x, y, &direction) {
-                            Some((local_new_x, local_new_y)) => {
-                                new_x = local_new_x;
-                                new_y = local_new_y;
-                            }
-                            None => {}
+                        if self.can_move(x, y, &direction) {
+                            moves_to_do.push((element.clone(), x, y, &direction));
                         }
                     }
+                }
+            }
+        }
 
-                    new_grid[self.get_grid_index(new_x, new_y)].push(element.clone());
+        while moves_to_do.len() > 0 {
+            let (element_to_move, x, y, direction_to_move) = moves_to_do.pop().unwrap();
+            let index_to_remove = new_grid[self.get_grid_index(x, y)]
+                .iter()
+                .position(|&el| el == element_to_move)
+                .unwrap();
+            new_grid[self.get_grid_index(x, y)].remove(index_to_remove);
+
+            let mut new_x = x;
+            let mut new_y = y;
+            match direction {
+                Direction::UP => new_y = new_y - 1,
+                Direction::DOWN => new_y = new_y + 1,
+                Direction::LEFT => new_x = new_x - 1,
+                Direction::RIGHT => new_x = new_x + 1,
+            }
+
+            new_grid[self.get_grid_index(new_x, new_y)].push(element_to_move);
+            for element_in_next_location in &self.grid[self.get_grid_index(new_x, new_y)] {
+                if self.is_adjective(element_in_next_location, Adjective::PUSH) {
+                    moves_to_do.push((
+                        element_in_next_location.clone(),
+                        new_x,
+                        new_y,
+                        direction_to_move,
+                    ));
                 }
             }
         }
@@ -143,13 +164,7 @@ impl Level {
         self.is_win()
     }
 
-    fn can_move(
-        &self,
-        element: &Element,
-        x: usize,
-        y: usize,
-        direction: &Direction,
-    ) -> Option<(usize, usize)> {
+    fn can_move(&self, x: usize, y: usize, direction: &Direction) -> bool {
         let mut new_x = x;
         let mut new_y = y;
         // Objects can't go off limits
@@ -158,28 +173,28 @@ impl Level {
                 if new_y > 0 {
                     new_y = new_y - 1
                 } else {
-                    return None;
+                    return false;
                 }
             }
             Direction::DOWN => {
                 if new_y < self.height - 1 {
                     new_y = new_y + 1
                 } else {
-                    return None;
+                    return false;
                 }
             }
             Direction::LEFT => {
                 if new_x > 0 {
                     new_x = new_x - 1
                 } else {
-                    return None;
+                    return false;
                 }
             }
             Direction::RIGHT => {
                 if new_x < self.width - 1 {
                     new_x = new_x + 1
                 } else {
-                    return None;
+                    return false;
                 }
             }
         }
@@ -187,21 +202,18 @@ impl Level {
         for element_in_next_location in &self.grid[self.get_grid_index(new_x, new_y)] {
             // Can't pass stop objects
             if self.is_adjective(&element_in_next_location, Adjective::STOP) {
-                return None;
+                return false;
             }
 
             // Can't move if push objects can't be pushed
             if self.is_adjective(&element_in_next_location, Adjective::PUSH) {
-                match self.can_move(&element_in_next_location, new_x, new_y, direction) {
-                    Some(_) => {}
-                    None => {
-                        return None;
-                    }
+                if !self.can_move(new_x, new_y, direction) {
+                    return false;
                 }
             }
         }
 
-        Some((new_x, new_y))
+        true
     }
 
     fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
@@ -323,7 +335,7 @@ fn main() {
     let mut level = Level::new(12, 15);
     level.add_object(2, 3, Element::Object(Object::FERRIS));
     level.add_object(1, 9, Element::Object(Object::FLAG));
-    level.add_object(0, 9, Element::Object(Object::FLAG));
+    level.add_object(2, 9, Element::Object(Object::FLAG));
     level.add_object(0, 0, Element::Object(Object::WALL));
     level.add_object(6, 6, Element::Object(Object::FERRIS));
     level.add_object(0, 5, Element::Object(Object::ROCKET));
