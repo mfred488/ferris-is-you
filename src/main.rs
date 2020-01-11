@@ -39,6 +39,7 @@ enum Adjective {
     STOP,
     PUSH,
     SINK,
+    FLOAT,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -93,6 +94,7 @@ fn get_printable_character(element: Option<&Element>) -> String {
         Some(Element::Text(Text::Adjective(Adjective::STOP))) => return String::from("St"),
         Some(Element::Text(Text::Adjective(Adjective::PUSH))) => return String::from("Pu"),
         Some(Element::Text(Text::Adjective(Adjective::SINK))) => return String::from("Si"),
+        Some(Element::Text(Text::Adjective(Adjective::FLOAT))) => return String::from("Fl"),
         None => return String::from(".."),
         // _ => return String::from("?"),
     };
@@ -207,8 +209,10 @@ impl Level {
                     .is_some();
 
                 if cell_has_sink {
-                    new_grid[self.get_grid_index(x, y)]
-                        .retain(|&element| self.is_adjective(&element, Adjective::SINK));
+                    new_grid[self.get_grid_index(x, y)].retain(|&element| {
+                        self.is_adjective(&element, Adjective::SINK)
+                            || self.is_adjective(&element, Adjective::FLOAT)
+                    });
                 }
             }
         }
@@ -404,6 +408,9 @@ fn main() {
     level.add_object(7, 13, Element::Text(Text::Noun(Noun::WATER)));
     level.add_object(8, 13, Element::Text(Text::IS));
     level.add_object(9, 13, Element::Text(Text::Adjective(Adjective::SINK)));
+    level.add_object(7, 14, Element::Text(Text::Noun(Noun::FLAG)));
+    level.add_object(8, 14, Element::Text(Text::IS));
+    level.add_object(9, 14, Element::Text(Text::Adjective(Adjective::FLOAT)));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();

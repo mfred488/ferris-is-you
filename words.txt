@@ -4,14 +4,9 @@ Nouns:
 * empty
 
 Adjectives:
-* you
-* win
-* push
-* sink
 * hot
 * melt
 * defeat
-* stop
 * float
 * shift
 * more
