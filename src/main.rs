@@ -34,6 +34,7 @@ enum Adjective {
     YOU,
     WIN,
     STOP,
+    PUSH,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -63,6 +64,7 @@ fn get_printable_character(element: Option<&Element>) -> String {
         Some(Element::Word(Word::Adjective(Adjective::YOU))) => return String::from("U "),
         Some(Element::Word(Word::Adjective(Adjective::WIN))) => return String::from("Wi"),
         Some(Element::Word(Word::Adjective(Adjective::STOP))) => return String::from("St"),
+        Some(Element::Word(Word::Adjective(Adjective::PUSH))) => return String::from("Pu"),
         None => return String::from(".."),
         // _ => return String::from("?"),
     };
@@ -108,7 +110,9 @@ impl Level {
     }
 
     fn get_grid_index(&self, x: usize, y: usize) -> usize {
-        x * self.width + y
+        assert!(x < self.width);
+        assert!(y < self.height);
+        x * self.height + y
     }
 
     fn clear_grid(&mut self) {
@@ -198,10 +202,25 @@ impl Level {
             }
         }
 
-        // Can't pass stop objects
         for element_in_next_location in &self.grid[self.get_grid_index(new_x, new_y)] {
+            // Can't pass stop objects
             if self.is_adjective(&element_in_next_location, Adjective::STOP) {
                 return None;
+            }
+
+            // Can't move if push objects can't be pushed
+            if self.is_adjective(&element_in_next_location, Adjective::PUSH) {
+                let neighbour_with_location = ElementWithLocation {
+                    x: new_x,
+                    y: new_y,
+                    element: element_with_location.element,
+                };
+                match self.can_move(&neighbour_with_location, direction) {
+                    Some(_) => {}
+                    None => {
+                        return None;
+                    }
+                }
             }
         }
 
@@ -322,9 +341,10 @@ impl Level {
 }
 
 fn main() {
-    let mut level = Level::new(12, 12);
+    let mut level = Level::new(12, 15);
     level.add_object(2, 3, Element::Object(Object::FERRIS));
     level.add_object(1, 9, Element::Object(Object::FLAG));
+    level.add_object(0, 9, Element::Object(Object::FLAG));
     level.add_object(0, 0, Element::Object(Object::WALL));
     level.add_object(6, 6, Element::Object(Object::FERRIS));
     level.add_object(0, 5, Element::Object(Object::ROCKET));
@@ -337,6 +357,9 @@ fn main() {
     level.add_object(7, 11, Element::Word(Word::Noun(Noun::WALL)));
     level.add_object(8, 11, Element::Word(Word::IS));
     level.add_object(9, 11, Element::Word(Word::Adjective(Adjective::STOP)));
+    level.add_object(7, 12, Element::Word(Word::Noun(Noun::FLAG)));
+    level.add_object(8, 12, Element::Word(Word::IS));
+    level.add_object(9, 12, Element::Word(Word::Adjective(Adjective::PUSH)));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
