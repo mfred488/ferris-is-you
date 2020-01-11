@@ -27,6 +27,7 @@ enum Noun {
     ROCKET,
     FLAG,
     WALL,
+    TEXT,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -50,6 +51,26 @@ enum Direction {
     LEFT,
 }
 
+#[derive(Debug)]
+struct NounIsAdjectiveRule {
+    noun: Noun,
+    adjective: Adjective,
+}
+
+fn get_rule(el1: &Element, el2: &Element, el3: &Element) -> Option<NounIsAdjectiveRule> {
+    match (el1, el2, el3) {
+        (
+            Element::Word(Word::Noun(noun)),
+            Element::Word(Word::IS),
+            Element::Word(Word::Adjective(adjective)),
+        ) => Some(NounIsAdjectiveRule {
+            noun: noun.clone(),
+            adjective: adjective.clone(),
+        }),
+        _ => None,
+    }
+}
+
 fn get_printable_character(element: Option<&Element>) -> String {
     match element {
         Some(Element::Object(Object::FERRIS)) => return String::from("🦀"),
@@ -60,6 +81,7 @@ fn get_printable_character(element: Option<&Element>) -> String {
         Some(Element::Word(Word::Noun(Noun::ROCKET))) => return String::from("Ro"),
         Some(Element::Word(Word::Noun(Noun::FLAG))) => return String::from("Fl"),
         Some(Element::Word(Word::Noun(Noun::WALL))) => return String::from("Wa"),
+        Some(Element::Word(Word::Noun(Noun::TEXT))) => return String::from("Te"),
         Some(Element::Word(Word::IS)) => return String::from("=="),
         Some(Element::Word(Word::Adjective(Adjective::YOU))) => return String::from("U "),
         Some(Element::Word(Word::Adjective(Adjective::WIN))) => return String::from("Wi"),
@@ -75,14 +97,16 @@ struct Level {
     height: usize,
     grid: Vec<Vec<Element>>,
     old_grids: VecDeque<Vec<Vec<Element>>>,
+    rules: Vec<NounIsAdjectiveRule>,
 }
 
-fn get_noun(object: &Object) -> Noun {
-    match object {
-        Object::FERRIS => Noun::FERRIS,
-        Object::ROCKET => Noun::ROCKET,
-        Object::FLAG => Noun::FLAG,
-        Object::WALL => Noun::WALL,
+fn get_noun(element: &Element) -> Noun {
+    match element {
+        Element::Word(_) => Noun::TEXT,
+        Element::Object(Object::FERRIS) => Noun::FERRIS,
+        Element::Object(Object::ROCKET) => Noun::ROCKET,
+        Element::Object(Object::FLAG) => Noun::FLAG,
+        Element::Object(Object::WALL) => Noun::WALL,
     }
 }
 
@@ -94,6 +118,7 @@ impl Level {
             height,
             grid: Vec::with_capacity(width * height),
             old_grids: VecDeque::new(),
+            rules: Vec::new(),
         };
 
         for _ in 0..height * width {
@@ -111,6 +136,7 @@ impl Level {
     fn add_object(&mut self, x: usize, y: usize, element: Element) {
         let index = self.get_grid_index(x, y);
         self.grid[index].push(element);
+        self.build_rules();
     }
 
     fn undo(&mut self) {
@@ -169,6 +195,8 @@ impl Level {
         self.old_grids.push_back(self.grid.clone());
         self.grid = new_grid;
 
+        self.build_rules();
+
         self.is_win()
     }
 
@@ -224,73 +252,56 @@ impl Level {
         true
     }
 
-    fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
-        match element {
-            Element::Word(_) => false,
-            Element::Object(object) => {
-                // Vertical rules
-                for x in 0..self.width {
-                    for y in 0..self.height - 2 {
-                        for el1 in &self.grid[self.get_grid_index(x, y)] {
-                            for el2 in &self.grid[self.get_grid_index(x, y + 1)] {
-                                for el3 in &self.grid[self.get_grid_index(x, y + 2)] {
-                                    match (el1, el2, el3) {
-                                        (
-                                            Element::Word(Word::Noun(noun)),
-                                            Element::Word(Word::IS),
-                                            Element::Word(Word::Adjective(local_adjective)),
-                                        ) => {
-                                            if noun == &get_noun(&object)
-                                                && &adjective == local_adjective
-                                            {
-                                                eprintln!(
-                                                    "{:?} is {:?} (vertical rule at {},{})",
-                                                    object, adjective, x, y
-                                                );
-                                                return true;
-                                            } else {
-                                                continue;
-                                            }
-                                        }
-                                        _ => continue,
-                                    }
-                                }
+    // This shall be called once the objects have moved (i.e. self.grid is up-to-date)
+    fn build_rules(&mut self) {
+        let mut new_rules: Vec<NounIsAdjectiveRule> = Vec::new();
+
+        // Constant rules
+        new_rules.push(NounIsAdjectiveRule {
+            noun: Noun::TEXT,
+            adjective: Adjective::PUSH,
+        });
+
+        // Vertical rules
+        for x in 0..self.width {
+            for y in 0..self.height - 2 {
+                for el1 in &self.grid[self.get_grid_index(x, y)] {
+                    for el2 in &self.grid[self.get_grid_index(x, y + 1)] {
+                        for el3 in &self.grid[self.get_grid_index(x, y + 2)] {
+                            if let Some(rule) = get_rule(el1, el2, el3) {
+                                new_rules.push(rule);
                             }
                         }
                     }
                 }
-
-                // Horizontal rules
-                for y in 0..self.height {
-                    for x in 0..self.width - 2 {
-                        for el1 in &self.grid[self.get_grid_index(x, y)] {
-                            for el2 in &self.grid[self.get_grid_index(x + 1, y)] {
-                                for el3 in &self.grid[self.get_grid_index(x + 2, y)] {
-                                    match (el1, el2, el3) {
-                                        (
-                                            Element::Word(Word::Noun(noun)),
-                                            Element::Word(Word::IS),
-                                            Element::Word(Word::Adjective(local_adjective)),
-                                        ) => {
-                                            if noun == &get_noun(&object)
-                                                && &adjective == local_adjective
-                                            {
-                                                return true;
-                                            } else {
-                                                continue;
-                                            }
-                                        }
-                                        _ => continue,
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                false
             }
         }
+
+        // Vertical rules
+        for x in 0..self.width {
+            for y in 0..self.height - 2 {
+                for el1 in &self.grid[self.get_grid_index(x, y)] {
+                    for el2 in &self.grid[self.get_grid_index(x + 1, y)] {
+                        for el3 in &self.grid[self.get_grid_index(x + 2, y)] {
+                            if let Some(rule) = get_rule(el1, el2, el3) {
+                                new_rules.push(rule);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        self.rules = new_rules;
+    }
+
+    fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
+        for rule in &self.rules {
+            if rule.noun == get_noun(element) && rule.adjective == adjective {
+                return true;
+            }
+        }
+        false
     }
 
     fn is_win(&self) -> bool {
@@ -315,26 +326,35 @@ impl Level {
 
     fn print(&self, stdout: &mut termion::raw::RawTerminal<std::io::Stdout>) {
         // write!(stdout, "{}", termion::clear::All).unwrap();
+        let mut line_number = 0;
         for y in 0..self.height {
+            line_number += 1;
             let mut line = String::with_capacity(self.width);
             for x in 0..self.width {
                 let first_element = self.grid[self.get_grid_index(x, y)].get(0);
                 line.push_str(&get_printable_character(first_element))
             }
+            write!(stdout, "{}{}", termion::cursor::Goto(1, line_number), line).unwrap();
+        }
+        line_number += 1;
+        write!(
+            stdout,
+            "{}Rules :",
+            termion::cursor::Goto(1, line_number.try_into().unwrap())
+        )
+        .unwrap();
+
+        for rule in &self.rules {
+            line_number += 1;
             write!(
                 stdout,
-                "{}{}",
-                termion::cursor::Goto(1, (1 + y).try_into().unwrap()),
-                line
+                "{}  - {:?} is {:?}",
+                termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                rule.noun,
+                rule.adjective
             )
             .unwrap();
         }
-        write!(
-            stdout,
-            "{}",
-            termion::cursor::Goto(1, (1 + self.height).try_into().unwrap())
-        )
-        .unwrap();
         stdout.flush().unwrap();
     }
 }
