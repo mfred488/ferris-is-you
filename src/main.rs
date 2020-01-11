@@ -28,6 +28,7 @@ enum Noun {
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Adjective {
     YOU,
+    WIN,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -51,6 +52,7 @@ fn get_printable_character(element: Option<&Element>) -> String {
         Some(Element::Word(Word::Noun(Noun::ROCKET))) => return String::from("Ro"),
         Some(Element::Word(Word::IS)) => return String::from("=="),
         Some(Element::Word(Word::Adjective(Adjective::YOU))) => return String::from("U "),
+        Some(Element::Word(Word::Adjective(Adjective::WIN))) => return String::from("Wi"),
         None => return String::from(".."),
         // _ => return String::from("?"),
     };
@@ -110,7 +112,7 @@ impl Level {
             .push(ElementWithLocation { x, y, element })
     }
 
-    fn next(&mut self, direction: Direction) {
+    fn next(&mut self, direction: Direction) -> bool {
         let mut new_elements_with_locations: Vec<ElementWithLocation> =
             Vec::with_capacity(self.elements_with_locations.len());
 
@@ -151,6 +153,8 @@ impl Level {
             let index = self.get_grid_index(element_with_location.x, element_with_location.y);
             self.grid[index].push(element_with_location.element);
         }
+
+        self.is_win()
     }
 
     fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
@@ -218,6 +222,24 @@ impl Level {
         }
     }
 
+    fn is_win(&self) -> bool {
+        for element_with_location in &self.elements_with_locations {
+            if !self.is_adjective(&element_with_location.element, Adjective::YOU) {
+                continue;
+            }
+
+            let elements_at_same_location =
+                &self.grid[self.get_grid_index(element_with_location.x, element_with_location.y)];
+            for element_at_same_location in elements_at_same_location {
+                if self.is_adjective(element_at_same_location, Adjective::WIN) {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
     fn print(&self, stdout: &mut termion::raw::RawTerminal<std::io::Stdout>) {
         write!(stdout, "{}", termion::clear::All).unwrap();
         for y in 0..self.height {
@@ -246,6 +268,9 @@ fn main() {
     level.add_object(7, 9, Element::Word(Word::Noun(Noun::FERRIS)));
     level.add_object(8, 9, Element::Word(Word::IS));
     level.add_object(9, 9, Element::Word(Word::Adjective(Adjective::YOU)));
+    level.add_object(7, 10, Element::Word(Word::Noun(Noun::ROCKET)));
+    level.add_object(8, 10, Element::Word(Word::IS));
+    level.add_object(9, 10, Element::Word(Word::Adjective(Adjective::WIN)));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -261,16 +286,21 @@ fn main() {
     level.print(&mut stdout);
 
     for c in stdin.keys() {
+        let mut is_win = false;
         match c.unwrap() {
             Key::Char('q') => break,
             Key::Esc => break,
-            Key::Left => level.next(Direction::LEFT),
-            Key::Right => level.next(Direction::RIGHT),
-            Key::Up => level.next(Direction::UP),
-            Key::Down => level.next(Direction::DOWN),
+            Key::Left => is_win = level.next(Direction::LEFT),
+            Key::Right => is_win = level.next(Direction::RIGHT),
+            Key::Up => is_win = level.next(Direction::UP),
+            Key::Down => is_win = level.next(Direction::DOWN),
             _ => {}
         }
         level.print(&mut stdout);
+
+        if is_win {
+            break;
+        }
     }
 
     write!(stdout, "{}", termion::cursor::Show).unwrap();
