@@ -36,9 +36,9 @@ The project is at the very early stage of its development. It only runs in a ter
 
 - [ ] Keep implementing additional words
 - [ ] Implement waiting option
-- [x] Implement level loader (i.e. build a level from an Unicode description of the level)~~
+- [x] Implement level loader (i.e. build a level from an Unicode description of the level)
 - [ ] Add tests
-- [ ] Restructure the code (only one monolithic file as of now)
+- [ ] Restructure the code (only one monolithic file as of now) (**ongoing**)
 - [ ] Build a WebAssembly version, and make it run in the browser
 
 ## Things that will probably never be done
