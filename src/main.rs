@@ -1,10 +1,13 @@
 extern crate termion;
+
 use std::collections::VecDeque;
 use std::convert::TryInto;
+use std::fs;
 use std::io::{stdin, stdout, Write};
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Object {
@@ -75,29 +78,55 @@ fn get_rule(el1: &Element, el2: &Element, el3: &Element) -> Option<NounIsAdjecti
     }
 }
 
-fn get_printable_character(element: Option<&Element>) -> String {
+fn get_printable_character(element: Option<&Element>) -> &str {
     match element {
-        Some(Element::Object(Object::FERRIS)) => return String::from("🦀"),
-        Some(Element::Object(Object::ROCKET)) => return String::from("🚀"),
-        Some(Element::Object(Object::FLAG)) => return String::from("🚩"),
-        Some(Element::Object(Object::WALL)) => return String::from("🧱"),
-        Some(Element::Object(Object::WATER)) => return String::from("🌊"),
-        Some(Element::Text(Text::Noun(Noun::FERRIS))) => return String::from("Fe"),
-        Some(Element::Text(Text::Noun(Noun::ROCKET))) => return String::from("Ro"),
-        Some(Element::Text(Text::Noun(Noun::FLAG))) => return String::from("Fl"),
-        Some(Element::Text(Text::Noun(Noun::WALL))) => return String::from("Wa"),
-        Some(Element::Text(Text::Noun(Noun::WATER))) => return String::from("Wt"),
-        Some(Element::Text(Text::Noun(Noun::TEXT))) => return String::from("Te"),
-        Some(Element::Text(Text::IS)) => return String::from("=="),
-        Some(Element::Text(Text::Adjective(Adjective::YOU))) => return String::from("U "),
-        Some(Element::Text(Text::Adjective(Adjective::WIN))) => return String::from("Wi"),
-        Some(Element::Text(Text::Adjective(Adjective::STOP))) => return String::from("St"),
-        Some(Element::Text(Text::Adjective(Adjective::PUSH))) => return String::from("Pu"),
-        Some(Element::Text(Text::Adjective(Adjective::SINK))) => return String::from("Si"),
-        Some(Element::Text(Text::Adjective(Adjective::FLOAT))) => return String::from("Fl"),
-        None => return String::from(".."),
+        Some(Element::Object(Object::FERRIS)) => return "🦀",
+        Some(Element::Object(Object::ROCKET)) => return "🚀",
+        Some(Element::Object(Object::FLAG)) => return "🚩",
+        Some(Element::Object(Object::WALL)) => return "🧱",
+        Some(Element::Object(Object::WATER)) => return "🌊",
+        Some(Element::Text(Text::Noun(Noun::FERRIS))) => return "Fe",
+        Some(Element::Text(Text::Noun(Noun::ROCKET))) => return "Ro",
+        Some(Element::Text(Text::Noun(Noun::FLAG))) => return "Fg",
+        Some(Element::Text(Text::Noun(Noun::WALL))) => return "Wa",
+        Some(Element::Text(Text::Noun(Noun::WATER))) => return "Wt",
+        Some(Element::Text(Text::Noun(Noun::TEXT))) => return "Te",
+        Some(Element::Text(Text::IS)) => return "==",
+        Some(Element::Text(Text::Adjective(Adjective::YOU))) => return "U ",
+        Some(Element::Text(Text::Adjective(Adjective::WIN))) => return "Wi",
+        Some(Element::Text(Text::Adjective(Adjective::STOP))) => return "St",
+        Some(Element::Text(Text::Adjective(Adjective::PUSH))) => return "Pu",
+        Some(Element::Text(Text::Adjective(Adjective::SINK))) => return "Si",
+        Some(Element::Text(Text::Adjective(Adjective::FLOAT))) => return "Fl",
+        None => return "..",
         // _ => return String::from("?"),
     };
+}
+
+// Kind of reverse function of the function above; try to de-duplicate that, but without dropping the match (that will detect conflicting definitions)
+fn get_element_from_printable_character(chars: &str) -> Option<Element> {
+    match chars {
+        "🦀" => Some(Element::Object(Object::FERRIS)),
+        "🚀" => Some(Element::Object(Object::ROCKET)),
+        "🚩" => Some(Element::Object(Object::FLAG)),
+        "🧱" => Some(Element::Object(Object::WALL)),
+        "🌊" => Some(Element::Object(Object::WATER)),
+        "Fe" => Some(Element::Text(Text::Noun(Noun::FERRIS))),
+        "Ro" => Some(Element::Text(Text::Noun(Noun::ROCKET))),
+        "Fg" => Some(Element::Text(Text::Noun(Noun::FLAG))),
+        "Wa" => Some(Element::Text(Text::Noun(Noun::WALL))),
+        "Wt" => Some(Element::Text(Text::Noun(Noun::WATER))),
+        "Te" => Some(Element::Text(Text::Noun(Noun::TEXT))),
+        "==" => Some(Element::Text(Text::IS)),
+        "U " => Some(Element::Text(Text::Adjective(Adjective::YOU))),
+        "Wi" => Some(Element::Text(Text::Adjective(Adjective::WIN))),
+        "St" => Some(Element::Text(Text::Adjective(Adjective::STOP))),
+        "Pu" => Some(Element::Text(Text::Adjective(Adjective::PUSH))),
+        "Si" => Some(Element::Text(Text::Adjective(Adjective::SINK))),
+        "Fl" => Some(Element::Text(Text::Adjective(Adjective::FLOAT))),
+        ".." => None,
+        _ => panic!("Unknown character {}", chars),
+    }
 }
 
 struct Level {
@@ -121,7 +150,7 @@ fn get_noun(element: &Element) -> Noun {
 
 impl Level {
     fn new(width: usize, height: usize) -> Level {
-        assert!(width > 3 && height > 3); // Required for is_you
+        assert!(width > 3 && height > 3);
         let mut level = Level {
             width,
             height,
@@ -142,7 +171,7 @@ impl Level {
         x * self.height + y
     }
 
-    fn add_object(&mut self, x: usize, y: usize, element: Element) {
+    fn add_element(&mut self, x: usize, y: usize, element: Element) {
         let index = self.get_grid_index(x, y);
         self.grid[index].push(element);
         self.build_rules();
@@ -357,7 +386,7 @@ impl Level {
             let mut line = String::with_capacity(self.width);
             for x in 0..self.width {
                 let first_element = self.grid[self.get_grid_index(x, y)].get(0);
-                line.push_str(&get_printable_character(first_element))
+                line.push_str(get_printable_character(first_element))
             }
             write!(stdout, "{}{}", termion::cursor::Goto(1, line_number), line).unwrap();
         }
@@ -385,32 +414,7 @@ impl Level {
 }
 
 fn main() {
-    let mut level = Level::new(12, 15);
-    level.add_object(2, 3, Element::Object(Object::FERRIS));
-    level.add_object(1, 9, Element::Object(Object::FLAG));
-    level.add_object(2, 9, Element::Object(Object::FLAG));
-    level.add_object(2, 11, Element::Object(Object::WATER));
-    level.add_object(0, 0, Element::Object(Object::WALL));
-    level.add_object(6, 6, Element::Object(Object::FERRIS));
-    level.add_object(0, 5, Element::Object(Object::ROCKET));
-    level.add_object(7, 9, Element::Text(Text::Noun(Noun::FERRIS)));
-    level.add_object(8, 9, Element::Text(Text::IS));
-    level.add_object(9, 9, Element::Text(Text::Adjective(Adjective::YOU)));
-    level.add_object(7, 10, Element::Text(Text::Noun(Noun::ROCKET)));
-    level.add_object(8, 10, Element::Text(Text::IS));
-    level.add_object(9, 10, Element::Text(Text::Adjective(Adjective::WIN)));
-    level.add_object(7, 11, Element::Text(Text::Noun(Noun::WALL)));
-    level.add_object(8, 11, Element::Text(Text::IS));
-    level.add_object(9, 11, Element::Text(Text::Adjective(Adjective::STOP)));
-    level.add_object(7, 12, Element::Text(Text::Noun(Noun::FLAG)));
-    level.add_object(8, 12, Element::Text(Text::IS));
-    level.add_object(9, 12, Element::Text(Text::Adjective(Adjective::PUSH)));
-    level.add_object(7, 13, Element::Text(Text::Noun(Noun::WATER)));
-    level.add_object(8, 13, Element::Text(Text::IS));
-    level.add_object(9, 13, Element::Text(Text::Adjective(Adjective::SINK)));
-    level.add_object(7, 14, Element::Text(Text::Noun(Noun::FLAG)));
-    level.add_object(8, 14, Element::Text(Text::IS));
-    level.add_object(9, 14, Element::Text(Text::Adjective(Adjective::FLOAT)));
+    let mut level = build_level_from_file(String::from("levels/test.txt"));
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -446,4 +450,61 @@ fn main() {
     }
 
     write!(stdout, "{}", termion::cursor::Show).unwrap();
+}
+
+fn build_level_from_file(file_path: String) -> Level {
+    let file_content = fs::read_to_string(file_path).expect("Could not open file !");
+    let lines = file_content.lines();
+
+    let mut width = 0;
+    let mut height = 0;
+    let mut elements_to_add: Vec<(usize, usize, Element)> = Vec::new();
+
+    for line in lines {
+        if line.starts_with("#") {
+            continue;
+        }
+
+        let mut local_width = 0;
+        let graphemes = UnicodeSegmentation::graphemes(line, true).collect::<Vec<&str>>();
+        let mut previous_grapheme = "";
+
+        for grapheme in graphemes {
+            if grapheme.is_ascii() {
+                local_width += 1;
+                if (local_width % 2) == 0 {
+                    if let Some(element) = get_element_from_printable_character(
+                        &(previous_grapheme.to_owned() + grapheme),
+                    ) {
+                        elements_to_add.push((local_width / 2 - 1, height, element))
+                    }
+                } else {
+                    previous_grapheme = grapheme;
+                }
+            } else {
+                local_width += 2;
+                if let Some(element) = get_element_from_printable_character(grapheme) {
+                    elements_to_add.push((local_width / 2 - 1, height, element));
+                }
+            }
+        }
+
+        if width > 0 && local_width != width * 2 {
+            panic!(
+                "The width of the line {} is inconsistent with the one of previous line(s)!",
+                &line
+            );
+        }
+        height += 1;
+        width = local_width / 2;
+    }
+
+    println!("Dimensions: {}x{}", &width, &height);
+
+    let mut level = Level::new(width, height);
+    for (x, y, element) in elements_to_add {
+        level.add_element(x, y, element);
+    }
+
+    level
 }
