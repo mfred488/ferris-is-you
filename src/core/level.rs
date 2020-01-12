@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 pub struct Level {
     pub width: usize,
     pub height: usize,
-    pub grid: Vec<Vec<Element>>,
+    grid: Vec<Vec<Element>>,
     old_grids: VecDeque<Vec<Vec<Element>>>,
     pub rules: Vec<NounIsAdjectiveRule>,
 }
@@ -28,7 +28,7 @@ impl Level {
         level
     }
 
-    pub fn get_grid_index(&self, x: usize, y: usize) -> usize {
+    fn get_grid_index(&self, x: usize, y: usize) -> usize {
         assert!(x < self.width);
         assert!(y < self.height);
         x * self.height + y
@@ -38,6 +38,10 @@ impl Level {
         let index = self.get_grid_index(x, y);
         self.grid[index].push(element);
         self.build_rules();
+    }
+
+    pub fn get_elements(&self, x: usize, y: usize) -> &Vec<Element> {
+        &self.grid[self.get_grid_index(x, y)]
     }
 
     pub fn undo(&mut self) {
@@ -53,7 +57,7 @@ impl Level {
 
         for x in 0..self.width {
             for y in 0..self.height {
-                for element in &self.grid[self.get_grid_index(x, y)] {
+                for element in self.get_elements(x, y) {
                     if self.is_adjective(&element, Adjective::YOU) {
                         if self.can_move(x, y, &direction) {
                             moves_to_do.push_back((element.clone(), x, y, &direction));
@@ -81,7 +85,7 @@ impl Level {
             }
 
             new_grid[self.get_grid_index(new_x, new_y)].push(element_to_move);
-            for element_in_next_location in &self.grid[self.get_grid_index(new_x, new_y)] {
+            for element_in_next_location in self.get_elements(new_x, new_y) {
                 if self.is_adjective(element_in_next_location, Adjective::PUSH) {
                     moves_to_do.push_back((
                         element_in_next_location.clone(),
@@ -152,7 +156,7 @@ impl Level {
             }
         }
 
-        for element_in_next_location in &self.grid[self.get_grid_index(new_x, new_y)] {
+        for element_in_next_location in self.get_elements(new_x, new_y) {
             // Can't pass stop objects
             if self.is_adjective(&element_in_next_location, Adjective::STOP) {
                 return false;
@@ -182,9 +186,9 @@ impl Level {
         // Vertical rules
         for x in 0..self.width {
             for y in 0..self.height - 2 {
-                for el1 in &self.grid[self.get_grid_index(x, y)] {
-                    for el2 in &self.grid[self.get_grid_index(x, y + 1)] {
-                        for el3 in &self.grid[self.get_grid_index(x, y + 2)] {
+                for el1 in self.get_elements(x, y) {
+                    for el2 in self.get_elements(x, y + 1) {
+                        for el3 in self.get_elements(x, y + 2) {
                             if let Some(rule) = is_rule(el1, el2, el3) {
                                 new_rules.push(rule);
                             }
@@ -197,9 +201,9 @@ impl Level {
         // Vertical rules
         for x in 0..self.width - 2 {
             for y in 0..self.height {
-                for el1 in &self.grid[self.get_grid_index(x, y)] {
-                    for el2 in &self.grid[self.get_grid_index(x + 1, y)] {
-                        for el3 in &self.grid[self.get_grid_index(x + 2, y)] {
+                for el1 in self.get_elements(x, y) {
+                    for el2 in self.get_elements(x + 1, y) {
+                        for el3 in self.get_elements(x + 2, y) {
                             if let Some(rule) = is_rule(el1, el2, el3) {
                                 new_rules.push(rule);
                             }
@@ -224,12 +228,12 @@ impl Level {
     fn is_win(&self) -> bool {
         for x in 0..self.width {
             for y in 0..self.height {
-                for element in &self.grid[self.get_grid_index(x, y)] {
+                for element in self.get_elements(x, y) {
                     if !self.is_adjective(element, Adjective::YOU) {
                         continue;
                     }
 
-                    for element_at_same_location in &self.grid[self.get_grid_index(x, y)] {
+                    for element_at_same_location in self.get_elements(x, y) {
                         if self.is_adjective(element_at_same_location, Adjective::WIN) {
                             return true;
                         }

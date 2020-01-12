@@ -72,7 +72,7 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
         line_number += 1;
         let mut line = String::with_capacity(level.width);
         for x in 0..level.width {
-            let first_element = level.grid[level.get_grid_index(x, y)].get(0);
+            let first_element = level.get_elements(x, y).get(0);
             line.push_str(get_printable_character(first_element))
         }
         write!(stdout, "{}{}", termion::cursor::Goto(1, line_number), line).unwrap();
