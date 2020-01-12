@@ -34,12 +34,12 @@ The project is at the very early stage of its development. It only runs in a ter
 
 ## Backlog:
 
-[checkbox:unchecked] Keep implementing additional words
-[checkbox:unchecked] Implement waiting option
-[checkbox:checked] Implement level loader (i.e. build a level from an Unicode description of the level)~~
-[checkbox:unchecked] Add tests
-[checkbox:unchecked] Restructure the code (only one monolithic file as of now)
-[checkbox:unchecked] Build a WebAssembly version, and make it run in the browser
+# [checkbox:unchecked] Keep implementing additional words
+# [checkbox:unchecked] Implement waiting option
+# [checkbox:checked] Implement level loader (i.e. build a level from an Unicode description of the level)~~
+# [checkbox:unchecked] Add tests
+# [checkbox:unchecked] Restructure the code (only one monolithic file as of now)
+# [checkbox:unchecked] Build a WebAssembly version, and make it run in the browser
 
 ## Things that will probably never be done
 
