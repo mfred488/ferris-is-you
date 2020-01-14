@@ -13,7 +13,7 @@ pub struct Level {
 
 impl Level {
     pub fn new(width: usize, height: usize) -> Level {
-        assert!(width > 3 && height > 3);
+        assert!(width > 2 && height > 2);
         let mut level = Level {
             width,
             height,
