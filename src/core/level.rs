@@ -104,11 +104,17 @@ impl Level {
                     .find(|&element| self.is_adjective(element, Adjective::SINK))
                     .is_some();
 
-                if cell_has_sink {
-                    new_grid[self.get_grid_index(x, y)].retain(|&element| {
-                        self.is_adjective(&element, Adjective::SINK)
-                            || self.is_adjective(&element, Adjective::FLOAT)
-                    });
+                let cell_has_non_floating_element = new_grid[self.get_grid_index(x, y)]
+                    .iter()
+                    .find(|&element| {
+                        !self.is_adjective(element, Adjective::SINK)
+                            && !self.is_adjective(element, Adjective::FLOAT)
+                    })
+                    .is_some();
+
+                if cell_has_sink && cell_has_non_floating_element {
+                    new_grid[self.get_grid_index(x, y)]
+                        .retain(|&element| self.is_adjective(&element, Adjective::FLOAT));
                 }
             }
         }
