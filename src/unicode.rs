@@ -23,6 +23,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Adjective(Adjective::PUSH))) => return "Pu",
         Some(Element::Text(Text::Adjective(Adjective::SINK))) => return "Si",
         Some(Element::Text(Text::Adjective(Adjective::FLOAT))) => return "Fl",
+        Some(Element::Text(Text::Adjective(Adjective::MOVE))) => return "Mv",
         None => return "..",
     };
 }
@@ -48,6 +49,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "Pu" => Some(Element::Text(Text::Adjective(Adjective::PUSH))),
         "Si" => Some(Element::Text(Text::Adjective(Adjective::SINK))),
         "Fl" => Some(Element::Text(Text::Adjective(Adjective::FLOAT))),
+        "Mv" => Some(Element::Text(Text::Adjective(Adjective::MOVE))),
         ".." => None,
         _ => panic!("Unknown character {}", chars),
     }

@@ -76,21 +76,23 @@ impl Level {
         }
     }
 
-    pub fn next(&mut self, input_direction: Direction) -> bool {
+    pub fn next(&mut self, input: Option<Direction>) -> bool {
         let mut new_grid: Vec<Vec<OrientedElement>> = self.grid.clone();
         let mut moves_to_do: VecDeque<(Element, usize, usize, Direction)> = VecDeque::new();
 
-        for x in 0..self.width {
-            for y in 0..self.height {
-                for oriented_element in self.get_oriented_elements(x, y) {
-                    if self.is_adjective(&oriented_element.element, Adjective::YOU) {
-                        if self.can_move(x, y, &input_direction) {
-                            moves_to_do.push_back((
-                                oriented_element.element.clone(),
-                                x,
-                                y,
-                                input_direction.clone(),
-                            ));
+        if let Some(input_direction) = input {
+            for x in 0..self.width {
+                for y in 0..self.height {
+                    for oriented_element in self.get_oriented_elements(x, y) {
+                        if self.is_adjective(&oriented_element.element, Adjective::YOU) {
+                            if self.can_move(x, y, &input_direction) {
+                                moves_to_do.push_back((
+                                    oriented_element.element.clone(),
+                                    x,
+                                    y,
+                                    input_direction.clone(),
+                                ));
+                            }
                         }
                     }
                 }

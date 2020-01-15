@@ -22,7 +22,7 @@ fn sink_destroys_non_floating_object() {
 }
 
 #[test]
-// Original game: Lake 2
+// Baba is you: Lake 2
 fn sink_destroys_several_objects() {
     let start = vec![
         "....Fg==🚩🌊",

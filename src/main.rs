@@ -67,10 +67,11 @@ fn main() {
             Key::Esc => break,
             Key::Char('u') => level.undo(),
             Key::Backspace => level.undo(),
-            Key::Left => is_win = level.next(Direction::LEFT),
-            Key::Right => is_win = level.next(Direction::RIGHT),
-            Key::Up => is_win = level.next(Direction::UP),
-            Key::Down => is_win = level.next(Direction::DOWN),
+            Key::Char(' ') => is_win = level.next(None),
+            Key::Left => is_win = level.next(Some(Direction::LEFT)),
+            Key::Right => is_win = level.next(Some(Direction::RIGHT)),
+            Key::Up => is_win = level.next(Some(Direction::UP)),
+            Key::Down => is_win = level.next(Some(Direction::DOWN)),
             _ => {}
         }
         print_level(&level, &mut stdout);

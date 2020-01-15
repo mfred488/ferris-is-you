@@ -32,6 +32,7 @@ pub enum Adjective {
     PUSH,
     SINK,
     FLOAT,
+    MOVE,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
