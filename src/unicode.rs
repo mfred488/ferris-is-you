@@ -117,7 +117,8 @@ pub fn get_level_lines(level: &Level) -> Vec<String> {
     for y in 0..level.height {
         let mut line = String::with_capacity(level.width);
         for x in 0..level.width {
-            let first_element = level.get_elements(x, y).get(0);
+            let elements = level.get_elements(x, y);
+            let first_element = elements.get(0);
             line.push_str(element_to_unicode(first_element))
         }
         lines.push(line);
