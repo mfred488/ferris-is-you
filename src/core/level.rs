@@ -147,6 +147,16 @@ impl Level {
 
         for x in 0..self.width {
             for y in 0..self.height {
+                let cell_has_defeat = new_grid[self.get_grid_index(x, y)]
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
+                    .is_some();
+
+                if cell_has_defeat {
+                    new_grid[self.get_grid_index(x, y)]
+                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
+                }
+
                 let cell_has_sink = new_grid[self.get_grid_index(x, y)]
                     .iter()
                     .find(|&oel| self.is_adjective(&oel.element, Adjective::SINK))

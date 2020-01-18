@@ -14,15 +14,15 @@ The project is at the very early stage of its development. It only runs in a ter
 * push
 * sink
 * float
+* move
+* defeat
 
 ## Not (yet) supported words
 * all
 * empty
 * hot/melt
-* defeat
 * shift
 * more
-* move
 * open
 * shut
 * has
@@ -36,10 +36,10 @@ The project is at the very early stage of its development. It only runs in a ter
 ## Backlog:
 
 - [ ] Keep implementing additional words
-- [ ] Implement waiting option
+- [x] Implement waiting option
 - [x] Implement level loader (i.e. build a level from an Unicode description of the level)
-- [ ] Add tests
-- [ ] Restructure the code (only one monolithic file as of now) (**ongoing**)
+- [x] Add tests
+- [x] Restructure the code (only one monolithic file as of now) (**ongoing**)
 - [ ] Build a WebAssembly version, and make it run in the browser
 
 ## Things that will probably never be done

@@ -24,6 +24,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Adjective(Adjective::SINK))) => return "Si",
         Some(Element::Text(Text::Adjective(Adjective::FLOAT))) => return "Fl",
         Some(Element::Text(Text::Adjective(Adjective::MOVE))) => return "Mv",
+        Some(Element::Text(Text::Adjective(Adjective::DEFEAT))) => return "Df",
         None => return "..",
     };
 }
@@ -50,6 +51,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "Si" => Some(Element::Text(Text::Adjective(Adjective::SINK))),
         "Fl" => Some(Element::Text(Text::Adjective(Adjective::FLOAT))),
         "Mv" => Some(Element::Text(Text::Adjective(Adjective::MOVE))),
+        "Df" => Some(Element::Text(Text::Adjective(Adjective::DEFEAT))),
         ".." => None,
         _ => panic!("Unknown character {}", chars),
     }
