@@ -153,6 +153,7 @@ impl Level {
                     .is_some();
 
                 if cell_has_defeat {
+                    // Check interaction with float (cf game trailer)
                     new_grid[self.get_grid_index(x, y)]
                         .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
                 }
@@ -173,6 +174,16 @@ impl Level {
                 if cell_has_sink && cell_has_non_floating_element {
                     new_grid[self.get_grid_index(x, y)]
                         .retain(|&oel| self.is_adjective(&oel.element, Adjective::FLOAT));
+                }
+
+                let cell_has_hot = new_grid[self.get_grid_index(x, y)]
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::HOT))
+                    .is_some();
+
+                if cell_has_hot {
+                    new_grid[self.get_grid_index(x, y)]
+                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
                 }
             }
         }

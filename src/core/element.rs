@@ -5,6 +5,7 @@ pub enum Object {
     FLAG,
     WALL,
     WATER,
+    LAVA,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -22,6 +23,7 @@ pub enum Noun {
     WALL,
     WATER,
     TEXT,
+    LAVA,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -34,6 +36,8 @@ pub enum Adjective {
     FLOAT,
     MOVE,
     DEFEAT,
+    HOT,
+    MELT,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -50,5 +54,6 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::FLAG) => Noun::FLAG,
         Element::Object(Object::WALL) => Noun::WALL,
         Element::Object(Object::WATER) => Noun::WATER,
+        Element::Object(Object::LAVA) => Noun::LAVA,
     }
 }

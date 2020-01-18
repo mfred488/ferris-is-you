@@ -16,11 +16,11 @@ The project is at the very early stage of its development. It only runs in a ter
 * float
 * move
 * defeat
+* hot/melt
 
 ## Not (yet) supported words
 * all
 * empty
-* hot/melt
 * shift
 * more
 * open
