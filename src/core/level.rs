@@ -1,4 +1,4 @@
-use super::direction::Direction;
+use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
 use super::rule::{is_rule, NounIsAdjectiveRule};
 use std::collections::VecDeque;
@@ -83,58 +83,67 @@ impl Level {
         if let Some(input_direction) = input {
             for x in 0..self.width {
                 for y in 0..self.height {
-                    let mut elements_to_move: Vec<Element> = Vec::new();
-                    for oriented_element in self.get_oriented_elements(x, y) {
-                        if self.is_adjective(&oriented_element.element, Adjective::YOU) {
-                            elements_to_move.push(oriented_element.element.clone());
+                    if self.can_move(&new_grid, x, y, &input_direction) {
+                        let mut elements_to_move: Vec<Element> = Vec::new();
+                        for oriented_element in self.get_oriented_elements(x, y) {
+                            if self.is_adjective(&oriented_element.element, Adjective::YOU) {
+                                elements_to_move.push(oriented_element.element.clone());
+                            }
+                        }
+                        if elements_to_move.len() > 0 {
+                            moves_to_do.push_back((
+                                elements_to_move,
+                                x,
+                                y,
+                                input_direction.clone(),
+                            ));
                         }
                     }
-                    moves_to_do.push_back((elements_to_move, x, y, input_direction.clone()));
                 }
             }
         }
+        self.process_moves(&mut new_grid, moves_to_do);
 
-        while moves_to_do.len() > 0 {
-            let (elements_to_move, x, y, direction_to_move) = moves_to_do.pop_front().unwrap();
-            if !self.can_move(x, y, &direction_to_move) {
-                continue;
-            }
+        let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
+        for x in 0..self.width {
+            for y in 0..self.height {
+                for direction in [
+                    Direction::UP,
+                    Direction::DOWN,
+                    Direction::LEFT,
+                    Direction::RIGHT,
+                ]
+                .iter()
+                {
+                    let opposite_direction = get_opposite_direction(direction);
+                    if self.can_move(&new_grid, x, y, direction) {
+                        let mut elements_to_move: Vec<Element> = Vec::new();
+                        for oriented_element in &new_grid[self.get_grid_index(x, y)] {
+                            if self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                                && &oriented_element.orientation == direction
+                            {
+                                elements_to_move.push(oriented_element.element.clone());
+                            }
+                        }
 
-            let mut new_x = x;
-            let mut new_y = y;
-            match direction_to_move {
-                Direction::UP => new_y = new_y - 1,
-                Direction::DOWN => new_y = new_y + 1,
-                Direction::LEFT => new_x = new_x - 1,
-                Direction::RIGHT => new_x = new_x + 1,
-            }
+                        if !self.can_move(&new_grid, x, y, &opposite_direction) {
+                            for oriented_element in &new_grid[self.get_grid_index(x, y)] {
+                                if self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                                    && oriented_element.orientation == opposite_direction
+                                {
+                                    elements_to_move.push(oriented_element.element.clone());
+                                }
+                            }
+                        }
 
-            for element_to_move in elements_to_move {
-                let index_to_remove = new_grid[self.get_grid_index(x, y)]
-                    .iter()
-                    .position(|&oel| oel.element == element_to_move)
-                    .unwrap();
-                new_grid[self.get_grid_index(x, y)].remove(index_to_remove);
-
-                new_grid[self.get_grid_index(new_x, new_y)]
-                    .push(OrientedElement::new(element_to_move, direction_to_move));
-                let mut elements_in_next_location_to_push: Vec<Element> = Vec::new();
-                for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
-                    if self
-                        .is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH)
-                    {
-                        elements_in_next_location_to_push
-                            .push(oriented_element_in_next_location.element.clone());
+                        if elements_to_move.len() > 0 {
+                            moves_to_do.push_back((elements_to_move, x, y, *direction));
+                        }
                     }
                 }
-                moves_to_do.push_back((
-                    elements_in_next_location_to_push,
-                    new_x,
-                    new_y,
-                    direction_to_move,
-                ));
             }
         }
+        self.process_moves(&mut new_grid, moves_to_do);
 
         for x in 0..self.width {
             for y in 0..self.height {
@@ -166,7 +175,13 @@ impl Level {
         self.is_win()
     }
 
-    fn can_move(&self, x: usize, y: usize, direction: &Direction) -> bool {
+    fn can_move(
+        &self,
+        grid: &Vec<Vec<OrientedElement>>,
+        x: usize,
+        y: usize,
+        direction: &Direction,
+    ) -> bool {
         let mut new_x = x;
         let mut new_y = y;
         // Objects can't go off limits
@@ -201,7 +216,7 @@ impl Level {
             }
         }
 
-        for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
+        for oriented_element_in_next_location in &grid[self.get_grid_index(new_x, new_y)] {
             // Can't pass stop objects
             if self.is_adjective(&oriented_element_in_next_location.element, Adjective::STOP) {
                 return false;
@@ -209,13 +224,61 @@ impl Level {
 
             // Can't move if push objects can't be pushed
             if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
-                if !self.can_move(new_x, new_y, direction) {
+                if !self.can_move(&grid, new_x, new_y, direction) {
                     return false;
                 }
             }
         }
 
         true
+    }
+
+    fn process_moves(
+        &self,
+        ongoing_grid: &mut Vec<Vec<OrientedElement>>,
+        mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)>,
+    ) {
+        while moves_to_do.len() > 0 {
+            let (elements_to_move, x, y, direction_to_move) = moves_to_do.pop_front().unwrap();
+
+            let mut new_x = x;
+            let mut new_y = y;
+            match direction_to_move {
+                Direction::UP => new_y = new_y - 1,
+                Direction::DOWN => new_y = new_y + 1,
+                Direction::LEFT => new_x = new_x - 1,
+                Direction::RIGHT => new_x = new_x + 1,
+            }
+
+            let mut elements_in_next_location_to_push: Vec<Element> = Vec::new();
+            for oriented_element_in_next_location in
+                &ongoing_grid[self.get_grid_index(new_x, new_y)]
+            {
+                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
+                    elements_in_next_location_to_push
+                        .push(oriented_element_in_next_location.element.clone());
+                }
+            }
+            if elements_in_next_location_to_push.len() > 0 {
+                moves_to_do.push_back((
+                    elements_in_next_location_to_push,
+                    new_x,
+                    new_y,
+                    direction_to_move,
+                ));
+            }
+
+            for element_to_move in elements_to_move {
+                let index_to_remove = ongoing_grid[self.get_grid_index(x, y)]
+                    .iter()
+                    .position(|&oel| oel.element == element_to_move)
+                    .unwrap();
+                ongoing_grid[self.get_grid_index(x, y)].remove(index_to_remove);
+
+                ongoing_grid[self.get_grid_index(new_x, new_y)]
+                    .push(OrientedElement::new(element_to_move, direction_to_move));
+            }
+        }
     }
 
     // This shall be called once the objects have moved (i.e. self.grid is up-to-date)
