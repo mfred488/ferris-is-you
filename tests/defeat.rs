@@ -23,3 +23,22 @@ fn defeat_destroys_you() {
 
     utils::assert_evolution(start, inputs, end);
 }
+
+#[test]
+fn defeat_does_not_destroy_not_you() {
+    let start = vec![
+        "..🦀🦀......",
+        "....🚀......",
+        "............",
+        "Fe==MvRo==Df",
+    ];
+    let inputs = vec![None, None];
+    let end = vec![
+        "............",
+        "....🚀......",
+        "..🦀🦀......",
+        "Fe==MvRo==Df",
+    ];
+
+    utils::assert_evolution_with_pauses(start, inputs, end);
+}
