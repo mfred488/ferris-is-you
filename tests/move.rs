@@ -99,3 +99,23 @@ fn push_move_evaluation_order() {
 
     utils::assert_evolution(start, inputs, end);
 }
+
+#[test]
+// Baba is you: ruins extra 1
+fn push_then_move() {
+    let start = vec![
+        "🦀🚩........",
+        "............",
+        "Fg==Mv......",
+        "Fe==U Fg==Pu",
+    ];
+    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let end = vec![
+        "..🦀..🚩....",
+        "............",
+        "Fg==Mv......",
+        "Fe==U Fg==Pu",
+    ];
+
+    utils::assert_evolution(start, inputs, end);
+}
