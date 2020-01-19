@@ -1,6 +1,6 @@
 use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
-use super::rule::{is_rule, NounIsAdjectiveRule};
+use super::rule::{is_rule, NounIsAdjectiveRule, Rule};
 use std::collections::VecDeque;
 
 #[derive(Debug, Copy, Clone)]
@@ -23,7 +23,7 @@ pub struct Level {
     pub height: usize,
     grid: Vec<Vec<OrientedElement>>,
     old_grids: VecDeque<Vec<Vec<OrientedElement>>>,
-    pub rules: Vec<NounIsAdjectiveRule>,
+    pub rules: Vec<Rule>,
 }
 
 impl Level {
@@ -254,7 +254,16 @@ impl Level {
     fn cleanup(&mut self) {
         for x in 0..self.width {
             for y in 0..self.height {
-                let mut oriented_elements = self.get_oriented_elements(x, y).clone();
+                let mut oriented_elements: Vec<OrientedElement> =
+                    Vec::with_capacity(self.get_oriented_elements(x, y).len());
+
+                for oriented_element in self.get_oriented_elements(x, y) {
+                    oriented_elements.push(OrientedElement {
+                        element: self.transform_element(oriented_element.element),
+                        orientation: oriented_element.orientation,
+                    })
+                }
+
                 let cell_has_defeat = oriented_elements
                     .iter()
                     .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
@@ -302,13 +311,13 @@ impl Level {
 
     // This shall be called once the objects have moved (i.e. self.grid is up-to-date)
     fn build_rules(&mut self) {
-        let mut new_rules: Vec<NounIsAdjectiveRule> = Vec::new();
+        let mut new_rules: Vec<Rule> = Vec::new();
 
         // Constant rules
-        new_rules.push(NounIsAdjectiveRule {
+        new_rules.push(Rule::NounIsAdjectiveRule(NounIsAdjectiveRule {
             noun: Noun::TEXT,
             adjective: Adjective::PUSH,
-        });
+        }));
 
         // Vertical rules
         for x in 0..self.width {
@@ -347,11 +356,32 @@ impl Level {
 
     fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
         for rule in &self.rules {
-            if rule.noun == get_noun(element) && rule.adjective == adjective {
-                return true;
+            match rule {
+                Rule::NounIsAdjectiveRule(noun_is_adjective_rule) => {
+                    if noun_is_adjective_rule.noun == get_noun(element)
+                        && noun_is_adjective_rule.adjective == adjective
+                    {
+                        return true;
+                    }
+                }
+                _ => {}
             }
         }
         false
+    }
+
+    fn transform_element(&self, element: Element) -> Element {
+        for rule in &self.rules {
+            match rule {
+                Rule::NounIsNounRule(noun_is_noun_rule) => {
+                    if noun_is_noun_rule.left == get_noun(&element) {
+                        return transform_into(&element, &noun_is_noun_rule.right);
+                    }
+                }
+                _ => {}
+            }
+        }
+        element
     }
 
     fn is_win(&self) -> bool {

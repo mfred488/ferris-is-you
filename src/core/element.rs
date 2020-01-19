@@ -57,3 +57,15 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::LAVA) => Noun::LAVA,
     }
 }
+
+pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
+    match noun {
+        Noun::FERRIS => Element::Object(Object::FERRIS),
+        Noun::ROCKET => Element::Object(Object::ROCKET),
+        Noun::FLAG => Element::Object(Object::FLAG),
+        Noun::WALL => Element::Object(Object::WALL),
+        Noun::WATER => Element::Object(Object::WATER),
+        Noun::LAVA => Element::Object(Object::LAVA),
+        Noun::TEXT => Element::Text(Text::Noun(get_noun(original_element))),
+    }
+}

@@ -5,6 +5,7 @@ mod unicode;
 
 use crate::core::direction::Direction;
 use crate::core::level::Level;
+use crate::core::rule::Rule;
 use crate::unicode::*;
 
 use std::convert::TryInto;
@@ -32,14 +33,28 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
 
     for rule in &level.rules {
         line_number += 1;
-        write!(
-            stdout,
-            "{}  - {:?} is {:?}",
-            termion::cursor::Goto(1, line_number.try_into().unwrap()),
-            rule.noun,
-            rule.adjective
-        )
-        .unwrap();
+        match rule {
+            Rule::NounIsAdjectiveRule(noun_is_adjective_rule) => {
+                write!(
+                    stdout,
+                    "{}  - {:?} is {:?}",
+                    termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                    noun_is_adjective_rule.noun,
+                    noun_is_adjective_rule.adjective
+                )
+                .unwrap();
+            }
+            Rule::NounIsNounRule(noun_is_noun_rule) => {
+                write!(
+                    stdout,
+                    "{}  - {:?} is {:?}",
+                    termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                    noun_is_noun_rule.left,
+                    noun_is_noun_rule.right
+                )
+                .unwrap();
+            }
+        }
     }
     stdout.flush().unwrap();
 }
