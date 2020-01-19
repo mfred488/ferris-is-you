@@ -77,13 +77,13 @@ impl Level {
     }
 
     pub fn next(&mut self, input: Option<Direction>) -> bool {
-        let mut new_grid: Vec<Vec<OrientedElement>> = self.grid.clone();
+        self.old_grids.push_back(self.grid.clone());
         let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
 
         if let Some(input_direction) = input {
             for x in 0..self.width {
                 for y in 0..self.height {
-                    if self.can_move(&new_grid, x, y, &input_direction) {
+                    if self.can_move(x, y, &input_direction) {
                         let mut elements_to_move: Vec<Element> = Vec::new();
                         for oriented_element in self.get_oriented_elements(x, y) {
                             if self.is_adjective(&oriented_element.element, Adjective::YOU) {
@@ -102,7 +102,7 @@ impl Level {
                 }
             }
         }
-        self.process_moves(&mut new_grid, moves_to_do);
+        self.process_moves(moves_to_do);
 
         let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
         for x in 0..self.width {
@@ -116,9 +116,9 @@ impl Level {
                 .iter()
                 {
                     let opposite_direction = get_opposite_direction(direction);
-                    if self.can_move(&new_grid, x, y, direction) {
+                    if self.can_move(x, y, direction) {
                         let mut elements_to_move: Vec<Element> = Vec::new();
-                        for oriented_element in &new_grid[self.get_grid_index(x, y)] {
+                        for oriented_element in self.get_oriented_elements(x, y) {
                             if self.is_adjective(&oriented_element.element, Adjective::MOVE)
                                 && &oriented_element.orientation == direction
                             {
@@ -126,8 +126,8 @@ impl Level {
                             }
                         }
 
-                        if !self.can_move(&new_grid, x, y, &opposite_direction) {
-                            for oriented_element in &new_grid[self.get_grid_index(x, y)] {
+                        if !self.can_move(x, y, &opposite_direction) {
+                            for oriented_element in self.get_oriented_elements(x, y) {
                                 if self.is_adjective(&oriented_element.element, Adjective::MOVE)
                                     && oriented_element.orientation == opposite_direction
                                 {
@@ -143,66 +143,16 @@ impl Level {
                 }
             }
         }
-        self.process_moves(&mut new_grid, moves_to_do);
+        self.process_moves(moves_to_do);
 
-        for x in 0..self.width {
-            for y in 0..self.height {
-                let cell_has_defeat = new_grid[self.get_grid_index(x, y)]
-                    .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
-                    .is_some();
-
-                if cell_has_defeat {
-                    // Check interaction with float (cf game trailer)
-                    new_grid[self.get_grid_index(x, y)]
-                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
-                }
-
-                let cell_has_sink = new_grid[self.get_grid_index(x, y)]
-                    .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::SINK))
-                    .is_some();
-
-                let cell_has_non_floating_element = new_grid[self.get_grid_index(x, y)]
-                    .iter()
-                    .find(|&oel| {
-                        !self.is_adjective(&oel.element, Adjective::SINK)
-                            && !self.is_adjective(&oel.element, Adjective::FLOAT)
-                    })
-                    .is_some();
-
-                if cell_has_sink && cell_has_non_floating_element {
-                    new_grid[self.get_grid_index(x, y)]
-                        .retain(|&oel| self.is_adjective(&oel.element, Adjective::FLOAT));
-                }
-
-                let cell_has_hot = new_grid[self.get_grid_index(x, y)]
-                    .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::HOT))
-                    .is_some();
-
-                if cell_has_hot {
-                    new_grid[self.get_grid_index(x, y)]
-                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
-                }
-            }
-        }
-
-        self.old_grids.push_back(self.grid.clone());
-        self.grid = new_grid;
-
+        self.cleanup();
         self.build_rules();
+        self.cleanup();
 
         self.is_win()
     }
 
-    fn can_move(
-        &self,
-        grid: &Vec<Vec<OrientedElement>>,
-        x: usize,
-        y: usize,
-        direction: &Direction,
-    ) -> bool {
+    fn can_move(&self, x: usize, y: usize, direction: &Direction) -> bool {
         let mut new_x = x;
         let mut new_y = y;
         // Objects can't go off limits
@@ -237,7 +187,7 @@ impl Level {
             }
         }
 
-        for oriented_element_in_next_location in &grid[self.get_grid_index(new_x, new_y)] {
+        for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
             // Can't pass stop objects
             if self.is_adjective(&oriented_element_in_next_location.element, Adjective::STOP) {
                 return false;
@@ -245,7 +195,7 @@ impl Level {
 
             // Can't move if push objects can't be pushed
             if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
-                if !self.can_move(&grid, new_x, new_y, direction) {
+                if !self.can_move(new_x, new_y, direction) {
                     return false;
                 }
             }
@@ -255,8 +205,7 @@ impl Level {
     }
 
     fn process_moves(
-        &self,
-        ongoing_grid: &mut Vec<Vec<OrientedElement>>,
+        &mut self,
         mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)>,
     ) {
         while moves_to_do.len() > 0 {
@@ -272,9 +221,7 @@ impl Level {
             }
 
             let mut elements_in_next_location_to_push: Vec<Element> = Vec::new();
-            for oriented_element_in_next_location in
-                &ongoing_grid[self.get_grid_index(new_x, new_y)]
-            {
+            for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
                 if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
                     elements_in_next_location_to_push
                         .push(oriented_element_in_next_location.element.clone());
@@ -290,14 +237,65 @@ impl Level {
             }
 
             for element_to_move in elements_to_move {
-                let index_to_remove = ongoing_grid[self.get_grid_index(x, y)]
+                let index_to_remove = self
+                    .get_oriented_elements(x, y)
                     .iter()
                     .position(|&oel| oel.element == element_to_move)
                     .unwrap();
-                ongoing_grid[self.get_grid_index(x, y)].remove(index_to_remove);
+                let old_index = self.get_grid_index(x, y);
+                let new_index = self.get_grid_index(new_x, new_y);
+                self.grid[old_index].remove(index_to_remove);
 
-                ongoing_grid[self.get_grid_index(new_x, new_y)]
-                    .push(OrientedElement::new(element_to_move, direction_to_move));
+                self.grid[new_index].push(OrientedElement::new(element_to_move, direction_to_move));
+            }
+        }
+    }
+
+    fn cleanup(&mut self) {
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let mut oriented_elements = self.get_oriented_elements(x, y).clone();
+                let cell_has_defeat = oriented_elements
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
+                    .is_some();
+
+                if cell_has_defeat {
+                    // Check interaction with float (cf game trailer)
+                    oriented_elements
+                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
+                }
+
+                let cell_has_sink = oriented_elements
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::SINK))
+                    .is_some();
+
+                let cell_has_non_floating_element = oriented_elements
+                    .iter()
+                    .find(|&oel| {
+                        !self.is_adjective(&oel.element, Adjective::SINK)
+                            && !self.is_adjective(&oel.element, Adjective::FLOAT)
+                    })
+                    .is_some();
+
+                if cell_has_sink && cell_has_non_floating_element {
+                    oriented_elements
+                        .retain(|&oel| self.is_adjective(&oel.element, Adjective::FLOAT));
+                }
+
+                let cell_has_hot = oriented_elements
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::HOT))
+                    .is_some();
+
+                if cell_has_hot {
+                    oriented_elements
+                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
+                }
+
+                let index = self.get_grid_index(x, y);
+                self.grid[index] = oriented_elements;
             }
         }
     }

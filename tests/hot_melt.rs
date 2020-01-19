@@ -45,3 +45,22 @@ fn hot_does_not_destroy_not_melt() {
 
     utils::assert_evolution(start, inputs, end);
 }
+
+#[test]
+fn both_hot_and_melt() {
+    let start = vec![
+        "....La....🔥",
+        "....==......",
+        "🦀Me........",
+        "Fe==U La==Ho",
+    ];
+    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let end = vec![
+        "....La......",
+        "....==......",
+        "..🦀Me......",
+        "Fe==U La==Ho",
+    ];
+
+    utils::assert_evolution(start, inputs, end);
+}
