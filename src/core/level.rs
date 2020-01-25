@@ -3,7 +3,7 @@ use super::element::*;
 use super::rule::{is_rule, NounIsAdjectiveRule, Rule};
 use std::collections::VecDeque;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 struct OrientedElement {
     element: Element,
     orientation: Direction,
@@ -145,6 +145,62 @@ impl Level {
         }
         self.process_moves(moves_to_do);
 
+        let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let mut new_cell_orientation = None;
+                let mut number_of_shift_elements = 0;
+                for oriented_element in self.get_oriented_elements(x, y).iter().rev() {
+                    if self.is_adjective(&oriented_element.element, Adjective::SHIFT) {
+                        number_of_shift_elements += 1;
+                        match new_cell_orientation {
+                            None => {
+                                new_cell_orientation = Some(oriented_element.orientation.clone())
+                            }
+                            Some(_) => {}
+                        }
+                    }
+                }
+
+                if let Some(new_cell_orientation) = new_cell_orientation {
+                    // TODO check if we can just replace the orientation instead of cloning the whole thing
+                    let mut new_oriented_elements: Vec<OrientedElement> =
+                        Vec::with_capacity(self.get_oriented_elements(x, y).len());
+                    for oriented_element in self.get_oriented_elements(x, y) {
+                        new_oriented_elements.push(OrientedElement {
+                            element: oriented_element.element.clone(),
+                            orientation: new_cell_orientation.clone(),
+                        })
+                    }
+
+                    let grid_index = self.get_grid_index(x, y);
+                    self.grid[grid_index] = new_oriented_elements;
+                    if self.can_move(x, y, &new_cell_orientation) {
+                        let mut elements_to_move: Vec<Element> = Vec::new();
+                        for oriented_element in self.get_oriented_elements(x, y) {
+                            if number_of_shift_elements > 1 {
+                                elements_to_move.push(oriented_element.element.clone());
+                            } else if !self
+                                .is_adjective(&oriented_element.element, Adjective::SHIFT)
+                            {
+                                // only one shift element: this element must not move
+                                elements_to_move.push(oriented_element.element.clone());
+                            }
+                        }
+                        if elements_to_move.len() > 0 {
+                            moves_to_do.push_back((
+                                elements_to_move,
+                                x,
+                                y,
+                                new_cell_orientation.clone(),
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+        self.process_moves(moves_to_do);
+
         self.cleanup();
         self.build_rules();
         self.cleanup();
@@ -270,7 +326,7 @@ impl Level {
                     .is_some();
 
                 if cell_has_defeat {
-                    // Check interaction with float (cf game trailer)
+                    // TODO Check interaction with float (cf game trailer)
                     oriented_elements
                         .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
                 }

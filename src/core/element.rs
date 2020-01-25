@@ -38,6 +38,7 @@ pub enum Adjective {
     DEFEAT,
     HOT,
     MELT,
+    SHIFT,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

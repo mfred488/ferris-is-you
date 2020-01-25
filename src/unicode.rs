@@ -29,6 +29,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Adjective(Adjective::DEFEAT))) => return "Df",
         Some(Element::Text(Text::Adjective(Adjective::HOT))) => return "Ho",
         Some(Element::Text(Text::Adjective(Adjective::MELT))) => return "Me",
+        Some(Element::Text(Text::Adjective(Adjective::SHIFT))) => return "Sh",
         None => return "..",
     };
 }
@@ -60,6 +61,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "Df" => Some(Element::Text(Text::Adjective(Adjective::DEFEAT))),
         "Ho" => Some(Element::Text(Text::Adjective(Adjective::HOT))),
         "Me" => Some(Element::Text(Text::Adjective(Adjective::MELT))),
+        "Sh" => Some(Element::Text(Text::Adjective(Adjective::SHIFT))),
         ".." => None,
         _ => panic!("Unknown character {}", chars),
     }
