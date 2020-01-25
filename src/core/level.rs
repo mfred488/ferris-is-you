@@ -163,18 +163,11 @@ impl Level {
                 }
 
                 if let Some(new_cell_orientation) = new_cell_orientation {
-                    // TODO check if we can just replace the orientation instead of cloning the whole thing
-                    let mut new_oriented_elements: Vec<OrientedElement> =
-                        Vec::with_capacity(self.get_oriented_elements(x, y).len());
-                    for oriented_element in self.get_oriented_elements(x, y) {
-                        new_oriented_elements.push(OrientedElement {
-                            element: oriented_element.element.clone(),
-                            orientation: new_cell_orientation.clone(),
-                        })
+                    let grid_index = self.get_grid_index(x, y);
+                    for mut oriented_element in &mut self.grid[grid_index] {
+                        oriented_element.orientation = new_cell_orientation.clone();
                     }
 
-                    let grid_index = self.get_grid_index(x, y);
-                    self.grid[grid_index] = new_oriented_elements;
                     if self.can_move(x, y, &new_cell_orientation) {
                         let mut elements_to_move: Vec<Element> = Vec::new();
                         for oriented_element in self.get_oriented_elements(x, y) {
