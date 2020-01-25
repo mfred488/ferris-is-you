@@ -6,6 +6,8 @@ pub enum Object {
     WALL,
     WATER,
     LAVA,
+    KEY,
+    DOOR,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -24,6 +26,8 @@ pub enum Noun {
     WATER,
     TEXT,
     LAVA,
+    KEY,
+    DOOR,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -39,6 +43,8 @@ pub enum Adjective {
     HOT,
     MELT,
     SHIFT,
+    OPEN,
+    SHUT,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -56,6 +62,8 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::WALL) => Noun::WALL,
         Element::Object(Object::WATER) => Noun::WATER,
         Element::Object(Object::LAVA) => Noun::LAVA,
+        Element::Object(Object::KEY) => Noun::KEY,
+        Element::Object(Object::DOOR) => Noun::DOOR,
     }
 }
 
@@ -67,6 +75,8 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::WALL => Element::Object(Object::WALL),
         Noun::WATER => Element::Object(Object::WATER),
         Noun::LAVA => Element::Object(Object::LAVA),
+        Noun::KEY => Element::Object(Object::KEY),
+        Noun::DOOR => Element::Object(Object::DOOR),
         Noun::TEXT => Element::Text(Text::Noun(get_noun(original_element))),
     }
 }

@@ -197,6 +197,7 @@ impl Level {
         self.cleanup();
         self.build_rules();
         self.cleanup();
+        self.transform_elements();
 
         self.is_win()
     }
@@ -304,14 +305,7 @@ impl Level {
         for x in 0..self.width {
             for y in 0..self.height {
                 let mut oriented_elements: Vec<OrientedElement> =
-                    Vec::with_capacity(self.get_oriented_elements(x, y).len());
-
-                for oriented_element in self.get_oriented_elements(x, y) {
-                    oriented_elements.push(OrientedElement {
-                        element: self.transform_element(oriented_element.element),
-                        orientation: oriented_element.orientation,
-                    })
-                }
+                    self.get_oriented_elements(x, y).clone();
 
                 let cell_has_defeat = oriented_elements
                     .iter()
@@ -350,6 +344,22 @@ impl Level {
                 if cell_has_hot {
                     oriented_elements
                         .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
+                }
+
+                let cell_has_open = oriented_elements
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::OPEN))
+                    .is_some();
+                let cell_has_shut = oriented_elements
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::SHUT))
+                    .is_some();
+
+                if cell_has_open && cell_has_shut {
+                    oriented_elements.retain(|&oel| {
+                        !self.is_adjective(&oel.element, Adjective::OPEN)
+                            && !self.is_adjective(&oel.element, Adjective::SHUT)
+                    });
                 }
 
                 let index = self.get_grid_index(x, y);
@@ -431,6 +441,24 @@ impl Level {
             }
         }
         element
+    }
+
+    fn transform_elements(&mut self) {
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let mut oriented_elements: Vec<OrientedElement> =
+                    Vec::with_capacity(self.get_oriented_elements(x, y).len());
+
+                for oriented_element in self.get_oriented_elements(x, y) {
+                    oriented_elements.push(OrientedElement {
+                        element: self.transform_element(oriented_element.element),
+                        orientation: oriented_element.orientation,
+                    })
+                }
+                let index = self.get_grid_index(x, y);
+                self.grid[index] = oriented_elements;
+            }
+        }
     }
 
     fn is_win(&self) -> bool {

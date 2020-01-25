@@ -7,7 +7,7 @@ The project is at the very early stage of its development. It only runs in a ter
 
 ## Supported words
 * Object names (Ferris, Flag, Rocket, Wall, etc.)
-* is (limited support: only for *noun* is *adjective*)
+* is (limited support: we don't detect conflicting rules for now)
 * you
 * win
 * stop
@@ -33,6 +33,8 @@ The project is at the very early stage of its development. It only runs in a ter
 * lonely
 * fall
 * weak
+* tele
+* pull
 
 ## Backlog:
 
@@ -41,7 +43,7 @@ The project is at the very early stage of its development. It only runs in a ter
 - [x] Implement waiting option
 - [x] Implement level loader (i.e. build a level from an Unicode description of the level)
 - [x] Add tests
-- [x] Restructure the code (only one monolithic file as of now) (**ongoing**)
+- [x] Restructure the code (only one monolithic file as of now)
 
 * Browser version:
 - [ ] Build a WebAssembly version, and make it run in the browser
@@ -52,6 +54,6 @@ The project is at the very early stage of its development. It only runs in a ter
 
 ## Things that will probably never be done
 
-* Support of word "level"
+* Support of words "level" and "cursor"
 * "Map" levels
 * Individual characters ?
