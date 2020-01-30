@@ -22,17 +22,17 @@ The project is at the very early stage of its development. It only runs in a ter
 * and (limited support: only A and B is C, or A is B and C)
 
 ## Not (yet) supported words
+* has
+* weak
+* tele
 * all
 * empty
 * more
-* has
 * not
 * on
 * near
 * lonely
 * fall
-* weak
-* tele
 * pull
 * swap
 * make

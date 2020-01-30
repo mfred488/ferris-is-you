@@ -304,66 +304,74 @@ impl Level {
     fn cleanup(&mut self) {
         for x in 0..self.width {
             for y in 0..self.height {
-                let mut oriented_elements: Vec<OrientedElement> =
-                    self.get_oriented_elements(x, y).clone();
-
-                let cell_has_defeat = oriented_elements
+                let mut floating_oriented_elements: Vec<OrientedElement> = self
+                    .get_oriented_elements(x, y)
                     .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
-                    .is_some();
-
-                if cell_has_defeat {
-                    // TODO Check interaction with float (cf game trailer)
-                    oriented_elements
-                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
-                }
-
-                let cell_has_sink = oriented_elements
+                    .filter(|&oel| self.is_adjective(&oel.element, Adjective::FLOAT))
+                    .cloned()
+                    .collect();
+                let mut non_floating_oriented_elements: Vec<OrientedElement> = self
+                    .get_oriented_elements(x, y)
                     .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::SINK))
-                    .is_some();
+                    .filter(|&oel| !self.is_adjective(&oel.element, Adjective::FLOAT))
+                    .cloned()
+                    .collect();
 
-                let cell_has_non_floating_element = oriented_elements
-                    .iter()
-                    .find(|&oel| {
-                        !self.is_adjective(&oel.element, Adjective::SINK)
-                            && !self.is_adjective(&oel.element, Adjective::FLOAT)
-                    })
-                    .is_some();
+                for oriented_elements in vec![
+                    &mut floating_oriented_elements,
+                    &mut non_floating_oriented_elements,
+                ] {
+                    let cell_has_sink = oriented_elements
+                        .iter()
+                        .find(|&oel| self.is_adjective(&oel.element, Adjective::SINK))
+                        .is_some();
+                    let cell_has_not_sink = oriented_elements
+                        .iter()
+                        .find(|&oel| !self.is_adjective(&oel.element, Adjective::SINK))
+                        .is_some();
+                    if cell_has_sink && cell_has_not_sink {
+                        oriented_elements.clear();
+                    }
 
-                if cell_has_sink && cell_has_non_floating_element {
-                    oriented_elements
-                        .retain(|&oel| self.is_adjective(&oel.element, Adjective::FLOAT));
-                }
+                    let cell_has_defeat = oriented_elements
+                        .iter()
+                        .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
+                        .is_some();
+                    if cell_has_defeat {
+                        oriented_elements
+                            .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
+                    }
 
-                let cell_has_hot = oriented_elements
-                    .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::HOT))
-                    .is_some();
+                    let cell_has_hot = oriented_elements
+                        .iter()
+                        .find(|&oel| self.is_adjective(&oel.element, Adjective::HOT))
+                        .is_some();
 
-                if cell_has_hot {
-                    oriented_elements
-                        .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
-                }
+                    if cell_has_hot {
+                        oriented_elements
+                            .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
+                    }
 
-                let cell_has_open = oriented_elements
-                    .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::OPEN))
-                    .is_some();
-                let cell_has_shut = oriented_elements
-                    .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::SHUT))
-                    .is_some();
+                    let cell_has_open = oriented_elements
+                        .iter()
+                        .find(|&oel| self.is_adjective(&oel.element, Adjective::OPEN))
+                        .is_some();
+                    let cell_has_shut = oriented_elements
+                        .iter()
+                        .find(|&oel| self.is_adjective(&oel.element, Adjective::SHUT))
+                        .is_some();
 
-                if cell_has_open && cell_has_shut {
-                    oriented_elements.retain(|&oel| {
-                        !self.is_adjective(&oel.element, Adjective::OPEN)
-                            && !self.is_adjective(&oel.element, Adjective::SHUT)
-                    });
+                    if cell_has_open && cell_has_shut {
+                        oriented_elements.retain(|&oel| {
+                            !self.is_adjective(&oel.element, Adjective::OPEN)
+                                && !self.is_adjective(&oel.element, Adjective::SHUT)
+                        });
+                    }
                 }
 
                 let index = self.get_grid_index(x, y);
-                self.grid[index] = oriented_elements;
+                floating_oriented_elements.append(&mut non_floating_oriented_elements);
+                self.grid[index] = floating_oriented_elements;
             }
         }
     }
@@ -596,11 +604,17 @@ impl Level {
                         continue;
                     }
 
+                    let is_float = self.is_adjective(&oriented_element.element, Adjective::FLOAT);
+
                     for oriented_element_at_same_location in self.get_oriented_elements(x, y) {
                         if self.is_adjective(
                             &oriented_element_at_same_location.element,
                             Adjective::WIN,
-                        ) {
+                        ) && self.is_adjective(
+                            &oriented_element_at_same_location.element,
+                            Adjective::FLOAT,
+                        ) == is_float
+                        {
                             return true;
                         }
                     }
