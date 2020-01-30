@@ -12,8 +12,14 @@ pub enum Object {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Text {
-    Noun(Noun),
+    Nominal(Nominal),
     IS,
+    Conjunction(Conjunction),
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Nominal {
+    Noun(Noun),
     Adjective(Adjective),
 }
 
@@ -28,6 +34,11 @@ pub enum Noun {
     LAVA,
     KEY,
     DOOR,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Conjunction {
+    AND,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -77,6 +88,6 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::LAVA => Element::Object(Object::LAVA),
         Noun::KEY => Element::Object(Object::KEY),
         Noun::DOOR => Element::Object(Object::DOOR),
-        Noun::TEXT => Element::Text(Text::Noun(get_noun(original_element))),
+        Noun::TEXT => Element::Text(Text::Nominal(Nominal::Noun(get_noun(original_element)))),
     }
 }

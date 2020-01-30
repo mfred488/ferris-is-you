@@ -34,23 +34,23 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
     for rule in &level.rules {
         line_number += 1;
         match rule {
-            Rule::NounIsAdjectiveRule(noun_is_adjective_rule) => {
+            Rule::NounIsNominalRule(noun_is_nominal_rule) => {
                 write!(
                     stdout,
                     "{}  - {:?} is {:?}",
                     termion::cursor::Goto(1, line_number.try_into().unwrap()),
-                    noun_is_adjective_rule.noun,
-                    noun_is_adjective_rule.adjective
+                    noun_is_nominal_rule.noun,
+                    noun_is_nominal_rule.nominal
                 )
                 .unwrap();
             }
-            Rule::NounIsNounRule(noun_is_noun_rule) => {
+            Rule::NounsGroupIsNominalsGroupRule(nouns_is_nominals_rule) => {
                 write!(
                     stdout,
                     "{}  - {:?} is {:?}",
                     termion::cursor::Goto(1, line_number.try_into().unwrap()),
-                    noun_is_noun_rule.left,
-                    noun_is_noun_rule.right
+                    nouns_is_nominals_rule.nouns,
+                    nouns_is_nominals_rule.nominals,
                 )
                 .unwrap();
             }

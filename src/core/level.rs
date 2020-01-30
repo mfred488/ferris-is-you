@@ -1,6 +1,6 @@
 use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
-use super::rule::{is_rule, NounIsAdjectiveRule, Rule};
+use super::rule::{is_rule_3, is_rule_5, NounIsNominalRule, Rule};
 use std::collections::VecDeque;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -373,74 +373,199 @@ impl Level {
         let mut new_rules: Vec<Rule> = Vec::new();
 
         // Constant rules
-        new_rules.push(Rule::NounIsAdjectiveRule(NounIsAdjectiveRule {
+        new_rules.push(Rule::NounIsNominalRule(NounIsNominalRule {
             noun: Noun::TEXT,
-            adjective: Adjective::PUSH,
+            nominal: Nominal::Adjective(Adjective::PUSH),
         }));
 
         // Vertical rules
         for x in 0..self.width {
-            for y in 0..self.height - 2 {
-                for oel1 in self.get_oriented_elements(x, y) {
-                    for oel2 in self.get_oriented_elements(x, y + 1) {
-                        for oel3 in self.get_oriented_elements(x, y + 2) {
-                            if let Some(rule) = is_rule(&oel1.element, &oel2.element, &oel3.element)
-                            {
-                                new_rules.push(rule);
-                            }
-                        }
+            let mut y = 0;
+            while y < self.height - 2 {
+                if y + 5 < self.height {
+                    let mut rules_5 = self.look_for_rule_5(
+                        (x, y),
+                        (x, y + 1),
+                        (x, y + 2),
+                        (x, y + 3),
+                        (x, y + 4),
+                    );
+                    if !rules_5.is_empty() {
+                        new_rules.append(&mut rules_5);
+                        y += 5;
+                        continue;
                     }
                 }
+                let mut rules_3 = self.look_for_rule_3((x, y), (x, y + 1), (x, y + 2));
+                if !rules_3.is_empty() {
+                    new_rules.append(&mut rules_3);
+                    y += 3;
+                    continue;
+                }
+                y += 1;
             }
         }
 
-        // Vertical rules
-        for x in 0..self.width - 2 {
-            for y in 0..self.height {
-                for oel1 in self.get_oriented_elements(x, y) {
-                    for oel2 in self.get_oriented_elements(x + 1, y) {
-                        for oel3 in self.get_oriented_elements(x + 2, y) {
-                            if let Some(rule) = is_rule(&oel1.element, &oel2.element, &oel3.element)
-                            {
-                                new_rules.push(rule);
-                            }
-                        }
+        // Horizontal rules
+        for y in 0..self.height {
+            let mut x = 0;
+            while x < self.width - 2 {
+                if x + 5 < self.width {
+                    let mut rules_5 = self.look_for_rule_5(
+                        (x, y),
+                        (x + 1, y),
+                        (x + 2, y),
+                        (x + 3, y),
+                        (x + 4, y),
+                    );
+                    if !rules_5.is_empty() {
+                        new_rules.append(&mut rules_5);
+                        x += 5;
+                        continue;
                     }
                 }
+                let mut rules_3 = self.look_for_rule_3((x, y), (x + 1, y), (x + 2, y));
+                if !rules_3.is_empty() {
+                    new_rules.append(&mut rules_3);
+                    x += 3;
+                    continue;
+                }
+                x += 1;
             }
         }
 
         self.rules = new_rules;
     }
 
+    fn look_for_rule_3(
+        &self,
+        p1: (usize, usize),
+        p2: (usize, usize),
+        p3: (usize, usize),
+    ) -> Vec<Rule> {
+        let mut results: Vec<Rule> = Vec::new();
+        for el1 in self.get_oriented_elements(p1.0, p1.1) {
+            for el2 in self.get_oriented_elements(p2.0, p2.1) {
+                for el3 in self.get_oriented_elements(p3.0, p3.1) {
+                    if let Some(rule) = is_rule_3(&el1.element, &el2.element, &el3.element) {
+                        results.push(rule);
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
+    fn look_for_rule_5(
+        &self,
+        p1: (usize, usize),
+        p2: (usize, usize),
+        p3: (usize, usize),
+        p4: (usize, usize),
+        p5: (usize, usize),
+    ) -> Vec<Rule> {
+        let mut results: Vec<Rule> = Vec::new();
+        for el1 in self.get_oriented_elements(p1.0, p1.1) {
+            for el2 in self.get_oriented_elements(p2.0, p2.1) {
+                for el3 in self.get_oriented_elements(p3.0, p3.1) {
+                    for el4 in self.get_oriented_elements(p4.0, p4.1) {
+                        for el5 in self.get_oriented_elements(p5.0, p5.1) {
+                            if let Some(rule) = is_rule_5(
+                                &el1.element,
+                                &el2.element,
+                                &el3.element,
+                                &el4.element,
+                                &el5.element,
+                            ) {
+                                results.push(rule);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
     fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
         for rule in &self.rules {
             match rule {
-                Rule::NounIsAdjectiveRule(noun_is_adjective_rule) => {
-                    if noun_is_adjective_rule.noun == get_noun(element)
-                        && noun_is_adjective_rule.adjective == adjective
-                    {
+                Rule::NounIsNominalRule(noun_is_nominal_rule) => {
+                    match noun_is_nominal_rule.nominal {
+                        Nominal::Adjective(rule_adjective) => {
+                            if noun_is_nominal_rule.noun == get_noun(element)
+                                && rule_adjective == adjective
+                            {
+                                return true;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                Rule::NounsGroupIsNominalsGroupRule(nouns_is_nominals_rule) => {
+                    let is_element_among_subjects = nouns_is_nominals_rule
+                        .nouns
+                        .iter()
+                        .find(|&subject| subject == &get_noun(element))
+                        .is_some();
+                    let is_adjective_among_nominals = nouns_is_nominals_rule
+                        .nominals
+                        .iter()
+                        .find(|&nominal| match nominal {
+                            Nominal::Adjective(local_adjective) => local_adjective == &adjective,
+                            _ => false,
+                        })
+                        .is_some();
+                    if is_element_among_subjects && is_adjective_among_nominals {
                         return true;
                     }
                 }
-                _ => {}
             }
         }
         false
     }
 
-    fn transform_element(&self, element: Element) -> Element {
+    fn transform_element(&self, element: Element) -> Vec<Element> {
         for rule in &self.rules {
             match rule {
-                Rule::NounIsNounRule(noun_is_noun_rule) => {
-                    if noun_is_noun_rule.left == get_noun(&element) {
-                        return transform_into(&element, &noun_is_noun_rule.right);
+                Rule::NounIsNominalRule(noun_is_nominal_rule) => {
+                    match noun_is_nominal_rule.nominal {
+                        Nominal::Noun(target_noun) => {
+                            if noun_is_nominal_rule.noun == get_noun(&element) {
+                                return vec![transform_into(&element, &target_noun)];
+                            }
+                        }
+                        _ => {}
                     }
                 }
-                _ => {}
+                Rule::NounsGroupIsNominalsGroupRule(nouns_is_nominals_rule) => {
+                    let is_element_among_subjects = nouns_is_nominals_rule
+                        .nouns
+                        .iter()
+                        .find(|&subject| subject == &get_noun(&element))
+                        .is_some();
+
+                    if is_element_among_subjects {
+                        let mut result: Vec<Element> = Vec::new();
+                        for nominal in &nouns_is_nominals_rule.nominals {
+                            match nominal {
+                                Nominal::Noun(target_noun) => {
+                                    result.push(transform_into(&element, &target_noun));
+                                }
+                                _ => {}
+                            }
+                        }
+
+                        if !result.is_empty() {
+                            return result;
+                        }
+                    }
+                }
             }
         }
-        element
+        vec![element]
     }
 
     fn transform_elements(&mut self) {
@@ -450,10 +575,12 @@ impl Level {
                     Vec::with_capacity(self.get_oriented_elements(x, y).len());
 
                 for oriented_element in self.get_oriented_elements(x, y) {
-                    oriented_elements.push(OrientedElement {
-                        element: self.transform_element(oriented_element.element),
-                        orientation: oriented_element.orientation,
-                    })
+                    for transformed_element in self.transform_element(oriented_element.element) {
+                        oriented_elements.push(OrientedElement {
+                            element: transformed_element,
+                            orientation: oriented_element.orientation,
+                        })
+                    }
                 }
                 let index = self.get_grid_index(x, y);
                 self.grid[index] = oriented_elements;

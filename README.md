@@ -18,28 +18,30 @@ The project is at the very early stage of its development. It only runs in a ter
 * defeat
 * hot/melt
 * shift
+* open / shut
+* and (limited support: only A and B is C, or A is B and C)
 
 ## Not (yet) supported words
 * all
 * empty
 * more
-* open
-* shut
 * has
 * not
 * on
-* and
 * near
 * lonely
 * fall
 * weak
 * tele
 * pull
+* swap
+* make
 
 ## Backlog:
 
 * Core:
 - [ ] Keep implementing additional words
+- [ ] Understand and implement contradictory rules settlement
 - [x] Implement waiting option
 - [x] Implement level loader (i.e. build a level from an Unicode description of the level)
 - [x] Add tests
