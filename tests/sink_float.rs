@@ -76,14 +76,14 @@ fn float_on_non_floating_win_does_not_win() {
     let start = vec![
         "🦀🚩........",
         "............",
-        "Fg==Fl......",
+        "Fe==Fl......",
         "Fe==U Fg==Wi",
     ];
     let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
     let end = vec![
-        "..🚩........",
+        "..🦀........",
         "............",
-        "Fg==Fl......",
+        "Fe==Fl......",
         "Fe==U Fg==Wi",
     ];
 
