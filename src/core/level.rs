@@ -321,52 +321,51 @@ impl Level {
                     &mut floating_oriented_elements,
                     &mut non_floating_oriented_elements,
                 ] {
-                    let cell_has_sink = oriented_elements
-                        .iter()
-                        .find(|&oel| self.is_adjective(&oel.element, Adjective::SINK))
-                        .is_some();
-                    let cell_has_not_sink = oriented_elements
-                        .iter()
-                        .find(|&oel| !self.is_adjective(&oel.element, Adjective::SINK))
-                        .is_some();
-                    if cell_has_sink && cell_has_not_sink {
-                        oriented_elements.clear();
+                    let mut cell_has_sink = false;
+                    let mut cell_has_not_sink = false;
+                    let mut cell_has_defeat = false;
+                    let mut cell_has_hot = false;
+                    let mut cell_has_open = false;
+                    let mut cell_has_shut = false;
+
+                    for oel in oriented_elements.iter() {
+                        cell_has_sink =
+                            cell_has_sink || self.is_adjective(&oel.element, Adjective::SINK);
+                        cell_has_not_sink =
+                            cell_has_not_sink || !self.is_adjective(&oel.element, Adjective::SINK);
+                        cell_has_defeat =
+                            cell_has_defeat || self.is_adjective(&oel.element, Adjective::DEFEAT);
+                        cell_has_hot =
+                            cell_has_hot || self.is_adjective(&oel.element, Adjective::HOT);
+                        cell_has_open =
+                            cell_has_open || self.is_adjective(&oel.element, Adjective::OPEN);
+                        cell_has_shut =
+                            cell_has_shut || self.is_adjective(&oel.element, Adjective::SHUT);
                     }
 
-                    let cell_has_defeat = oriented_elements
-                        .iter()
-                        .find(|&oel| self.is_adjective(&oel.element, Adjective::DEFEAT))
-                        .is_some();
-                    if cell_has_defeat {
-                        oriented_elements
-                            .retain(|&oel| !self.is_adjective(&oel.element, Adjective::YOU));
+                    let mut indexes_to_remove: Vec<usize> = Vec::new();
+                    let mut new_elements: Vec<OrientedElement> = Vec::new();
+                    let mut index = 0;
+                    for oel in oriented_elements.iter() {
+                        let must_be_destroyed = (cell_has_sink && cell_has_not_sink)
+                            || (cell_has_defeat && self.is_adjective(&oel.element, Adjective::YOU))
+                            || (cell_has_hot && self.is_adjective(&oel.element, Adjective::MELT))
+                            || (cell_has_open
+                                && cell_has_shut
+                                && (self.is_adjective(&oel.element, Adjective::OPEN)
+                                    || self.is_adjective(&oel.element, Adjective::SHUT)));
+
+                        if must_be_destroyed {
+                            indexes_to_remove.push(index);
+                            new_elements.append(&mut self.destroy_element(oel));
+                        }
+                        index += 1;
                     }
 
-                    let cell_has_hot = oriented_elements
-                        .iter()
-                        .find(|&oel| self.is_adjective(&oel.element, Adjective::HOT))
-                        .is_some();
-
-                    if cell_has_hot {
-                        oriented_elements
-                            .retain(|&oel| !self.is_adjective(&oel.element, Adjective::MELT));
+                    for &index_to_remove in indexes_to_remove.iter().rev() {
+                        oriented_elements.remove(index_to_remove);
                     }
-
-                    let cell_has_open = oriented_elements
-                        .iter()
-                        .find(|&oel| self.is_adjective(&oel.element, Adjective::OPEN))
-                        .is_some();
-                    let cell_has_shut = oriented_elements
-                        .iter()
-                        .find(|&oel| self.is_adjective(&oel.element, Adjective::SHUT))
-                        .is_some();
-
-                    if cell_has_open && cell_has_shut {
-                        oriented_elements.retain(|&oel| {
-                            !self.is_adjective(&oel.element, Adjective::OPEN)
-                                && !self.is_adjective(&oel.element, Adjective::SHUT)
-                        });
-                    }
+                    oriented_elements.append(&mut new_elements);
                 }
 
                 let index = self.get_grid_index(x, y);
@@ -374,6 +373,30 @@ impl Level {
                 self.grid[index] = floating_oriented_elements;
             }
         }
+    }
+
+    fn destroy_element(&self, destroyed_element: &OrientedElement) -> Vec<OrientedElement> {
+        for rule in &self.rules {
+            match rule {
+                Rule::NounIsNominalRule(_) => {}
+                Rule::NounsGroupIsNominalsGroupRule(_) => {}
+                Rule::NounHasNounsRule(noun_has_nouns_rule) => {
+                    if noun_has_nouns_rule.subject == get_noun(&destroyed_element.element) {
+                        let mut result: Vec<OrientedElement> =
+                            Vec::with_capacity(noun_has_nouns_rule.objects.len());
+                        for object in &noun_has_nouns_rule.objects {
+                            result.push(OrientedElement {
+                                element: transform_into(&destroyed_element.element, &object),
+                                orientation: destroyed_element.orientation.clone(),
+                            });
+                        }
+                        return result;
+                    }
+                }
+            }
+        }
+
+        Vec::new()
     }
 
     // This shall be called once the objects have moved (i.e. self.grid is up-to-date)
@@ -530,6 +553,7 @@ impl Level {
                         return true;
                     }
                 }
+                Rule::NounHasNounsRule(_) => {}
             }
         }
         false
@@ -571,6 +595,7 @@ impl Level {
                         }
                     }
                 }
+                Rule::NounHasNounsRule(_) => {}
             }
         }
         vec![element]

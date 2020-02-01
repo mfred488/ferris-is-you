@@ -54,6 +54,16 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
                 )
                 .unwrap();
             }
+            Rule::NounHasNounsRule(noun_has_nouns_rule) => {
+                write!(
+                    stdout,
+                    "{}  - {:?} has {:?}",
+                    termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                    noun_has_nouns_rule.subject,
+                    noun_has_nouns_rule.objects,
+                )
+                .unwrap();
+            }
         }
     }
     stdout.flush().unwrap();

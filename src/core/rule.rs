@@ -3,6 +3,7 @@ use super::element::*;
 pub enum Rule {
     NounIsNominalRule(NounIsNominalRule),
     NounsGroupIsNominalsGroupRule(NounsGroupIsNominalsGroupRule),
+    NounHasNounsRule(NounHasNounsRule),
 }
 
 #[derive(Debug)]
@@ -17,15 +18,29 @@ pub struct NounsGroupIsNominalsGroupRule {
     pub nominals: Vec<Nominal>,
 }
 
+#[derive(Debug)]
+pub struct NounHasNounsRule {
+    pub subject: Noun,
+    pub objects: Vec<Noun>,
+}
+
 pub fn is_rule_3(el1: &Element, el2: &Element, el3: &Element) -> Option<Rule> {
     match (el1, el2, el3) {
         (
             Element::Text(Text::Nominal(Nominal::Noun(noun))),
-            Element::Text(Text::IS),
+            Element::Text(Text::Verb(Verb::IS)),
             Element::Text(Text::Nominal(nominal)),
         ) => Some(Rule::NounIsNominalRule(NounIsNominalRule {
             noun: noun.clone(),
             nominal: nominal.clone(),
+        })),
+        (
+            Element::Text(Text::Nominal(Nominal::Noun(subject))),
+            Element::Text(Text::Verb(Verb::HAS)),
+            Element::Text(Text::Nominal(Nominal::Noun(object))),
+        ) => Some(Rule::NounHasNounsRule(NounHasNounsRule {
+            subject: subject.clone(),
+            objects: vec![object.clone()],
         })),
         _ => None,
     }
@@ -41,7 +56,7 @@ pub fn is_rule_5(
     match (el1, el2, el3, el4, el5) {
         (
             Element::Text(Text::Nominal(Nominal::Noun(noun))),
-            Element::Text(Text::IS),
+            Element::Text(Text::Verb(Verb::IS)),
             Element::Text(Text::Nominal(nominal1)),
             Element::Text(Text::Conjunction(Conjunction::AND)),
             Element::Text(Text::Nominal(nominal2)),
@@ -55,7 +70,7 @@ pub fn is_rule_5(
             Element::Text(Text::Nominal(Nominal::Noun(noun1))),
             Element::Text(Text::Conjunction(Conjunction::AND)),
             Element::Text(Text::Nominal(Nominal::Noun(noun2))),
-            Element::Text(Text::IS),
+            Element::Text(Text::Verb(Verb::IS)),
             Element::Text(Text::Nominal(nominal)),
         ) => Some(Rule::NounsGroupIsNominalsGroupRule(
             NounsGroupIsNominalsGroupRule {
@@ -63,6 +78,16 @@ pub fn is_rule_5(
                 nominals: vec![nominal.clone()],
             },
         )),
+        (
+            Element::Text(Text::Nominal(Nominal::Noun(subject))),
+            Element::Text(Text::Verb(Verb::HAS)),
+            Element::Text(Text::Nominal(Nominal::Noun(object1))),
+            Element::Text(Text::Conjunction(Conjunction::AND)),
+            Element::Text(Text::Nominal(Nominal::Noun(object2))),
+        ) => Some(Rule::NounHasNounsRule(NounHasNounsRule {
+            subject: subject.clone(),
+            objects: vec![object1.clone(), object2.clone()],
+        })),
         _ => None,
     }
 }

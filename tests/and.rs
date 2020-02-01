@@ -105,3 +105,25 @@ fn noun_and_noun_is_adjective() {
 
     utils::assert_evolution(start, inputs, end);
 }
+
+#[test]
+fn noun_has_noun_and_noun() {
+    let start = vec![
+        "..🦀🌊......",
+        "............",
+        "WtHaFg&&Fe..",
+        "Fe==U Wt==Si",
+    ];
+    let inputs = vec![
+        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_is_you::core::direction::Direction::RIGHT,
+    ];
+    let end = vec![
+        "....🚩🦀....",
+        "............",
+        "WtHaFg&&Fe..",
+        "Fe==U Wt==Si",
+    ];
+
+    utils::assert_evolution(start, inputs, end);
+}
