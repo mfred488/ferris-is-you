@@ -62,6 +62,7 @@ pub enum Adjective {
     SHIFT,
     OPEN,
     SHUT,
+    WEAK,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

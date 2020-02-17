@@ -78,8 +78,9 @@ impl Level {
 
     pub fn next(&mut self, input: Option<Direction>) -> bool {
         self.old_grids.push_back(self.grid.clone());
-        let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
 
+        let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
+        let mut elements_to_destroy: Vec<(usize, usize, usize)> = Vec::new();
         if let Some(input_direction) = input {
             for x in 0..self.width {
                 for y in 0..self.height {
@@ -98,13 +99,28 @@ impl Level {
                                 input_direction.clone(),
                             ));
                         }
+                    } else {
+                        for (index, oriented_element) in
+                            self.get_oriented_elements(x, y).iter().enumerate()
+                        {
+                            if self.is_adjective(&oriented_element.element, Adjective::WEAK) {
+                                elements_to_destroy.push((index, x, y))
+                            }
+                        }
                     }
                 }
             }
         }
+        for &(index_to_destroy, x, y) in elements_to_destroy.iter().rev() {
+            let grid_index = self.get_grid_index(x, y);
+            let removed_element = self.grid[grid_index].remove(index_to_destroy);
+            let new_elements = &mut self.destroy_element(&removed_element);
+            self.grid[grid_index].append(new_elements);
+        }
         self.process_moves(moves_to_do);
 
         let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
+        let mut elements_to_destroy: Vec<(usize, usize, usize)> = Vec::new();
         for x in 0..self.width {
             for y in 0..self.height {
                 for direction in [
@@ -139,11 +155,29 @@ impl Level {
                         if elements_to_move.len() > 0 {
                             moves_to_do.push_back((elements_to_move, x, y, *direction));
                         }
+                    } else {
+                        for (index, oriented_element) in
+                            self.get_oriented_elements(x, y).iter().enumerate()
+                        {
+                            if self.is_adjective(&oriented_element.element, Adjective::WEAK)
+                                && self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                                && &oriented_element.orientation == direction
+                            {
+                                elements_to_destroy.push((index, x, y))
+                            }
+                        }
                     }
                 }
             }
         }
+        for &(index_to_destroy, x, y) in elements_to_destroy.iter().rev() {
+            let grid_index = self.get_grid_index(x, y);
+            let removed_element = self.grid[grid_index].remove(index_to_destroy);
+            let new_elements = &mut self.destroy_element(&removed_element);
+            self.grid[grid_index].append(new_elements);
+        }
         self.process_moves(moves_to_do);
+        self.cleanup();
 
         let mut moves_to_do: VecDeque<(Vec<Element>, usize, usize, Direction)> = VecDeque::new();
         for x in 0..self.width {
@@ -353,7 +387,9 @@ impl Level {
                             || (cell_has_open
                                 && cell_has_shut
                                 && (self.is_adjective(&oel.element, Adjective::OPEN)
-                                    || self.is_adjective(&oel.element, Adjective::SHUT)));
+                                    || self.is_adjective(&oel.element, Adjective::SHUT)))
+                            || (oriented_elements.len() > 1
+                                && self.is_adjective(&oel.element, Adjective::WEAK));
 
                         if must_be_destroyed {
                             indexes_to_remove.push(index);

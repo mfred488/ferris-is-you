@@ -85,6 +85,28 @@ fn appears_after_defeat() {
 }
 
 #[test]
+fn appears_after_weak() {
+    let start = vec![
+        "..🦀🌊......",
+        "............",
+        "WtHaFg......",
+        "Fe==U Wt==We",
+    ];
+    let inputs = vec![
+        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_is_you::core::direction::Direction::RIGHT,
+    ];
+    let end = vec![
+        "....🚩🦀....",
+        "............",
+        "WtHaFg......",
+        "Fe==U Wt==We",
+    ];
+
+    utils::assert_evolution(start, inputs, end);
+}
+
+#[test]
 fn appears_with_ancestors_orientation() {
     let start = vec![
         "..🦀🔥......",

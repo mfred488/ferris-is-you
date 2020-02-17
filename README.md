@@ -20,10 +20,10 @@ The project is at the very early stage of its development. It only runs in a ter
 * shift
 * open / shut
 * and (limited support: only A and B is C, or A is B and C)
-
-## Not (yet) supported words
 * has
 * weak
+
+## Not (yet) supported words
 * tele
 * all
 * empty
@@ -36,12 +36,16 @@ The project is at the very early stage of its development. It only runs in a ter
 * pull
 * swap
 * make
+* word
+* up/right (Forest E, 6, 8)
+* facing
 
 ## Backlog:
 
 * Core:
 - [ ] Keep implementing additional words
 - [ ] Understand and implement contradictory rules settlement
+- [ ] Find some complex examples for weak (cf `weak.rs`)
 - [x] Implement waiting option
 - [x] Implement level loader (i.e. build a level from an Unicode description of the level)
 - [x] Add tests
