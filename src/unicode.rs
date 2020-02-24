@@ -39,6 +39,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::OPEN)))) => return "Op",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::SHUT)))) => return "Cl",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::WEAK)))) => return "We",
+        Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::PULL)))) => return "Pl",
         None => return "..",
     };
 }
@@ -107,6 +108,9 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         )))),
         "We" => Some(Element::Text(Text::Nominal(Nominal::Adjective(
             Adjective::WEAK,
+        )))),
+        "Pl" => Some(Element::Text(Text::Nominal(Nominal::Adjective(
+            Adjective::PULL,
         )))),
         ".." => None,
         _ => panic!("Unknown character {}", chars),

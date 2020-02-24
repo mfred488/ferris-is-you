@@ -22,6 +22,7 @@ The project is at the very early stage of its development. It only runs in a ter
 * and (limited support: only A and B is C, or A is B and C)
 * has
 * weak
+* pull (partial support: only pull by you)
 
 ## Not (yet) supported words
 * tele
@@ -33,9 +34,8 @@ The project is at the very early stage of its development. It only runs in a ter
 * near
 * lonely
 * fall
-* pull
 * swap
-* make
+* make (Garden 10)
 * word
 * up/right (Forest E, 6, 8)
 * facing

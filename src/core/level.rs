@@ -89,6 +89,34 @@ impl Level {
                         for oriented_element in self.get_oriented_elements(x, y) {
                             if self.is_adjective(&oriented_element.element, Adjective::YOU) {
                                 elements_to_move.push(oriented_element.element.clone());
+                                let opposite_direction = get_opposite_direction(&input_direction);
+                                let mut pulled_x = x;
+                                let mut pulled_y = y;
+                                while let Some((new_pulled_x, new_pulled_y)) =
+                                    self.get_next_location(pulled_x, pulled_y, &opposite_direction)
+                                {
+                                    pulled_x = new_pulled_x;
+                                    pulled_y = new_pulled_y;
+                                    let elements_to_pull: Vec<Element> = self
+                                        .get_oriented_elements(pulled_x, pulled_y)
+                                        .iter()
+                                        .filter(|&oel| {
+                                            self.is_adjective(&oel.element, Adjective::PULL)
+                                        })
+                                        .map(|&oel| oel.element.clone())
+                                        .collect();
+
+                                    if elements_to_pull.len() > 0 {
+                                        moves_to_do.push_back((
+                                            elements_to_pull,
+                                            pulled_x,
+                                            pulled_y,
+                                            input_direction.clone(),
+                                        ));
+                                    } else {
+                                        break;
+                                    }
+                                }
                             }
                         }
                         if elements_to_move.len() > 0 {
@@ -240,55 +268,73 @@ impl Level {
     }
 
     fn can_move(&self, x: usize, y: usize, direction: &Direction) -> bool {
+        if let Some((new_x, new_y)) = self.get_next_location(x, y, &direction) {
+            for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
+                // Can't pass stop objects
+                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::STOP) {
+                    return false;
+                }
+
+                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
+                    // Can't move if push objects can't be pushed
+                    if !self.can_move(new_x, new_y, direction) {
+                        return false;
+                    }
+                } else if self
+                    .is_adjective(&oriented_element_in_next_location.element, Adjective::PULL)
+                {
+                    // Can't move if there's a non-pushable pulled object
+                    return false;
+                }
+            }
+
+            true
+        } else {
+            // Objects can't go off limits
+            false
+        }
+    }
+
+    fn get_next_location(
+        &self,
+        x: usize,
+        y: usize,
+        direction: &Direction,
+    ) -> Option<(usize, usize)> {
         let mut new_x = x;
         let mut new_y = y;
-        // Objects can't go off limits
         match direction {
             Direction::UP => {
                 if new_y > 0 {
-                    new_y = new_y - 1
+                    new_y = new_y - 1;
                 } else {
-                    return false;
+                    return None;
                 }
             }
             Direction::DOWN => {
                 if new_y < self.height - 1 {
-                    new_y = new_y + 1
+                    new_y = new_y + 1;
                 } else {
-                    return false;
+                    return None;
                 }
             }
             Direction::LEFT => {
                 if new_x > 0 {
-                    new_x = new_x - 1
+                    new_x = new_x - 1;
                 } else {
-                    return false;
+                    return None;
                 }
             }
             Direction::RIGHT => {
                 if new_x < self.width - 1 {
-                    new_x = new_x + 1
+                    new_x = new_x + 1;
                 } else {
-                    return false;
+                    return None;
                 }
             }
         }
 
-        for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
-            // Can't pass stop objects
-            if self.is_adjective(&oriented_element_in_next_location.element, Adjective::STOP) {
-                return false;
-            }
-
-            // Can't move if push objects can't be pushed
-            if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
-                if !self.can_move(new_x, new_y, direction) {
-                    return false;
-                }
-            }
-        }
-
-        true
+        Some((new_x, new_y))
     }
 
     fn process_moves(
