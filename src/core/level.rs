@@ -144,7 +144,10 @@ impl Level {
 
                         if !self.can_move(x, y, &opposite_direction) {
                             for oriented_element in self.get_oriented_elements(x, y) {
+                                // If this element is weak, it won't turn around, but will be destroyed (cf below)
                                 if self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                                    && !self
+                                        .is_adjective(&oriented_element.element, Adjective::WEAK)
                                     && oriented_element.orientation == opposite_direction
                                 {
                                     elements_to_move.push(oriented_element.element.clone());
