@@ -89,34 +89,6 @@ impl Level {
                         for oriented_element in self.get_oriented_elements(x, y) {
                             if self.is_adjective(&oriented_element.element, Adjective::YOU) {
                                 elements_to_move.push(oriented_element.element.clone());
-                                let opposite_direction = get_opposite_direction(&input_direction);
-                                let mut pulled_x = x;
-                                let mut pulled_y = y;
-                                while let Some((new_pulled_x, new_pulled_y)) =
-                                    self.get_next_location(pulled_x, pulled_y, &opposite_direction)
-                                {
-                                    pulled_x = new_pulled_x;
-                                    pulled_y = new_pulled_y;
-                                    let elements_to_pull: Vec<Element> = self
-                                        .get_oriented_elements(pulled_x, pulled_y)
-                                        .iter()
-                                        .filter(|&oel| {
-                                            self.is_adjective(&oel.element, Adjective::PULL)
-                                        })
-                                        .map(|&oel| oel.element.clone())
-                                        .collect();
-
-                                    if elements_to_pull.len() > 0 {
-                                        moves_to_do.push_back((
-                                            elements_to_pull,
-                                            pulled_x,
-                                            pulled_y,
-                                            input_direction.clone(),
-                                        ));
-                                    } else {
-                                        break;
-                                    }
-                                }
                             }
                         }
                         if elements_to_move.len() > 0 {
@@ -367,6 +339,25 @@ impl Level {
                     new_y,
                     direction_to_move,
                 ));
+            }
+
+            let opposite_direction = get_opposite_direction(&direction_to_move);
+            if let Some((pulled_x, pulled_y)) = self.get_next_location(x, y, &opposite_direction) {
+                let elements_to_pull: Vec<Element> = self
+                    .get_oriented_elements(pulled_x, pulled_y)
+                    .iter()
+                    .filter(|&oel| self.is_adjective(&oel.element, Adjective::PULL))
+                    .map(|&oel| oel.element.clone())
+                    .collect();
+
+                if elements_to_pull.len() > 0 {
+                    moves_to_do.push_back((
+                        elements_to_pull,
+                        pulled_x,
+                        pulled_y,
+                        direction_to_move.clone(),
+                    ));
+                }
             }
 
             for element_to_move in elements_to_move {

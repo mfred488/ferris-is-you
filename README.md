@@ -22,7 +22,7 @@ The project is at the very early stage of its development. It only runs in a ter
 * and (limited support: only A and B is C, or A is B and C)
 * has
 * weak
-* pull (partial support: only pull by you)
+* pull
 
 ## Not (yet) supported words
 * tele
@@ -45,7 +45,7 @@ The project is at the very early stage of its development. It only runs in a ter
 * Core:
 - [ ] Keep implementing additional words
 - [ ] Understand and implement contradictory rules settlement
-- [ ] Find some complex examples for weak (cf `weak.rs`)
+- [ ] Find some complex examples (cf TODOs in test files)
 - [x] Implement waiting option
 - [x] Implement level loader (i.e. build a level from an Unicode description of the level)
 - [x] Add tests

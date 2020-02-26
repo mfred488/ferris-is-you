@@ -80,7 +80,7 @@ fn can_push_pull_if_explicit() {
     utils::assert_evolution(start, inputs, end);
 }
 
-// #[test]
+#[test]
 // Baba is you: Fall 9
 fn pulled_by_move() {
     let start = vec![
@@ -100,7 +100,7 @@ fn pulled_by_move() {
     utils::assert_evolution_with_pauses(start, inputs, end);
 }
 
-// #[test]
+#[test]
 // Baba is you: TODO find a level which proves that behaviour
 fn pulled_by_shift() {
     let start = vec![
