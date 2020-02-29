@@ -8,6 +8,10 @@ pub enum Object {
     LAVA,
     KEY,
     DOOR,
+    MOON,
+    STAR,
+    BAT,
+    HAND,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -34,6 +38,10 @@ pub enum Noun {
     LAVA,
     KEY,
     DOOR,
+    MOON,
+    STAR,
+    BAT,
+    HAND,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -83,6 +91,10 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::LAVA) => Noun::LAVA,
         Element::Object(Object::KEY) => Noun::KEY,
         Element::Object(Object::DOOR) => Noun::DOOR,
+        Element::Object(Object::MOON) => Noun::MOON,
+        Element::Object(Object::STAR) => Noun::STAR,
+        Element::Object(Object::BAT) => Noun::BAT,
+        Element::Object(Object::HAND) => Noun::HAND,
     }
 }
 
@@ -96,6 +108,10 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::LAVA => Element::Object(Object::LAVA),
         Noun::KEY => Element::Object(Object::KEY),
         Noun::DOOR => Element::Object(Object::DOOR),
+        Noun::MOON => Element::Object(Object::MOON),
+        Noun::STAR => Element::Object(Object::STAR),
+        Noun::BAT => Element::Object(Object::BAT),
+        Noun::HAND => Element::Object(Object::HAND),
         Noun::TEXT => Element::Text(Text::Nominal(Nominal::Noun(get_noun(original_element)))),
     }
 }

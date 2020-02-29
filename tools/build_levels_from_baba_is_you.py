@@ -50,9 +50,9 @@ known_elements = {
     0x303: "..", # More text
     0x304: "..", # End
     0x305: "..", # Up text
-    0x306: "..", # Star
+    0x306: "⭐",
     0x307: "..", # Single letter
-    0x308: "..", # Bat text
+    0x308: "Ba",
     0x309: "Wa",
     0x30a: "Wi",
     0x30b: "Pu",
@@ -60,11 +60,11 @@ known_elements = {
     0x401: "Mv",
     0x402: "..", # Best text
     0x403: "..", # Tele
-    0x404: "..", # Small fungus ? decorative in ??? extra 3
+    0x404: "🤚",
     0x405: "..", # Left text
-    0x406: "..", # Star text
+    0x406: "Sr",
     0x407: "..", # Single letter
-    0x408: "..", # Bat
+    0x408: "🦇",
     0x409: "Me",
     0x40a: "Ho",
     0x40b: "U ",
@@ -72,7 +72,7 @@ known_elements = {
     0x501: "Si",
     0x502: "..", # ??? Empty in forest 12 lock the door
     0x503: "🚪",
-    0x504: "..", # Hand text
+    0x504: "Hd",
     0x505: "..", # Down text
     0x506: "..", # Dust
     0x507: "..", # Flower text
@@ -106,7 +106,7 @@ known_elements = {
     0x802: "..", # Swap text
     0x803: "Pl",
     0x804: "..", # On text
-    0x806: "..", # Moon
+    0x806: "🌙",
     0x808: "..", # Fence
     0x900: "..", # Cliff
     0x901: "..", # Cliff text
@@ -114,7 +114,7 @@ known_elements = {
     0x903: "..", # Orb text
     0x904: "..", # Small tree ? decorative in ruins 4
     0x905: "..", # Bonus text
-    0x906: "..", # Moon text
+    0x906: "Mo",
     0x907: "..", # Group text
     0x908: "..", # Line text
     0x909: "..", # Some kind of tiles ? decorative in cavern 6
@@ -189,6 +189,7 @@ for level in levels:
             for y in range(0, height):
                 for x in range(0, width):
                     local_element = int.from_bytes(main[2*(y*width + x):2*(y*width + x + 1)], "little")
+                    # print((hex(local_element), x, y))
                     if local_element == 0x0000:
                         continue
                     elif local_element not in known_elements:
@@ -209,7 +210,7 @@ for level in levels:
                 if iterations == 0:
                     with open(output_folder + os.sep + level, "w") as output_file:
                         output_file.write("# " + level_description + " \n")
-                        output_file.write(output)
+                        output_file.write(output[1:])
                     output_levels_count += 1
                 else:
                     warning_levels[level] = "Level contains additional data"
