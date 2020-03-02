@@ -12,6 +12,14 @@ pub enum Object {
     STAR,
     BAT,
     HAND,
+    FUNGUS,
+    KEKE,
+    ICE,
+    SKULL,
+    LOVE,
+    BOX,
+    CLIFF,
+    GHOST,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -42,6 +50,14 @@ pub enum Noun {
     STAR,
     BAT,
     HAND,
+    FUNGUS,
+    KEKE,
+    ICE,
+    SKULL,
+    LOVE,
+    BOX,
+    CLIFF,
+    GHOST,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -95,6 +111,14 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::STAR) => Noun::STAR,
         Element::Object(Object::BAT) => Noun::BAT,
         Element::Object(Object::HAND) => Noun::HAND,
+        Element::Object(Object::FUNGUS) => Noun::FUNGUS,
+        Element::Object(Object::KEKE) => Noun::KEKE,
+        Element::Object(Object::ICE) => Noun::ICE,
+        Element::Object(Object::SKULL) => Noun::SKULL,
+        Element::Object(Object::LOVE) => Noun::LOVE,
+        Element::Object(Object::BOX) => Noun::BOX,
+        Element::Object(Object::CLIFF) => Noun::CLIFF,
+        Element::Object(Object::GHOST) => Noun::GHOST,
     }
 }
 
@@ -112,6 +136,14 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::STAR => Element::Object(Object::STAR),
         Noun::BAT => Element::Object(Object::BAT),
         Noun::HAND => Element::Object(Object::HAND),
+        Noun::FUNGUS => Element::Object(Object::FUNGUS),
+        Noun::KEKE => Element::Object(Object::KEKE),
+        Noun::ICE => Element::Object(Object::ICE),
+        Noun::SKULL => Element::Object(Object::SKULL),
+        Noun::LOVE => Element::Object(Object::LOVE),
+        Noun::BOX => Element::Object(Object::BOX),
+        Noun::CLIFF => Element::Object(Object::CLIFF),
+        Noun::GHOST => Element::Object(Object::GHOST),
         Noun::TEXT => Element::Text(Text::Nominal(Nominal::Noun(get_noun(original_element)))),
     }
 }

@@ -11,7 +11,7 @@ unparsable_levels = {}
 warning_levels = {}
 known_elements = {
     0x1: "🦀",
-    0x2: "..", # Keke
+    0x2: "👽",
     0x3: "..", # Rock
     0x4: "..", # Grass text
     0x5: "..", # Tile
@@ -27,25 +27,25 @@ known_elements = {
     0x103: "..", # Tile text
     0x104: "We",
     0x105: "..", # Near text
-    0x108: "..", # Fungus text
-    0x10a: "..", # Keke text
+    0x108: "Fu",
+    0x10a: "ET",
     0x106: "..", # Cloud
     0x107: "..", # Pillar
     0x109: "Fe",
     0x10b: "Fg",
     0x200: "🚩",
-    0x201: "..", # Ice
+    0x201: "❄️",
     0x202: "Sh",
     0x203: "..", # Single letter
     0x204: "..", # All text
     0x205: "..", # Right
     0x206: "..", # Single letter
     0x207: "..", # Pillar text
-    0x208: "..", # Fungus
+    0x208: "🍄",
     0x209: "..", # Rock text
     0x20a: "La",
     0x20b: "Wa",
-    0x300: "..", # Ice text
+    0x300: "Ic",
     0x301: "==",
     0x303: "..", # More text
     0x304: "..", # End
@@ -70,7 +70,7 @@ known_elements = {
     0x40b: "U ",
     0x500: "..", # Not text
     0x501: "Si",
-    0x502: "..", # ??? Empty in forest 12 lock the door
+    0x502: "❤️", # ??? Empty in forest 12 lock the door
     0x503: "🚪",
     0x504: "Hd",
     0x505: "..", # Down text
@@ -78,10 +78,10 @@ known_elements = {
     0x507: "..", # Flower text
     0x508: "Ro",
     0x50a: "Df",
-    0x50b: "..", # Skull
+    0x50b: "💀",
     0x600: "..", # Grass
-    0x601: "..", # Skull text
-    0x602: "..", # Love text
+    0x601: "Sk",
+    0x602: "Lv",
     0x603: "Do",
     0x604: "Te",
     0x605: "..", # Sleep text
@@ -93,8 +93,8 @@ known_elements = {
     0x60b: "Op",
     0x700: "Cl",
     0x701: "Ha",
-    0x702: "..", # Box
-    0x703: "..", # Box text
+    0x702: "📦",
+    0x703: "Bx",
     0x704: "..", # Belt
     0x705: "..", # Make text
     0x706: "..", # Fall text
@@ -108,8 +108,8 @@ known_elements = {
     0x804: "..", # On text
     0x806: "🌙",
     0x808: "..", # Fence
-    0x900: "..", # Cliff
-    0x901: "..", # Cliff text
+    0x900: "Cf",
+    0x901: "⛰️",
     0x902: "..", # Level text
     0x903: "..", # Orb text
     0x904: "..", # Small tree ? decorative in ruins 4
@@ -124,8 +124,8 @@ known_elements = {
     0xa02: "..", # Statue
     0xa05: "..", # ???
     0xa08: "..", # Some kind of line ...
-    0xa0a: "..", # Ghost
-    0xa0b: "..", # Ghost text
+    0xa0a: "👻",
+    0xa0b: "Gh",
     0xb00: "..", # Word text
     0xffff: ".."
 }
