@@ -57,14 +57,14 @@ fn transforms_into_text() {
     let start = vec![
         "......Fe....",
         "......==....",
-        "..🦀Te......",
+        "..🦀Tx......",
         "Fe==U ......",
     ];
     let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
     let end = vec![
         "......Fe....",
         "......==....",
-        "....FeTe....",
+        "....FeTx....",
         "Fe==U ......",
     ];
 

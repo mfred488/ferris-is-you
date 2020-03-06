@@ -88,6 +88,7 @@ pub enum Adjective {
     SHUT,
     WEAK,
     PULL,
+    TELE,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

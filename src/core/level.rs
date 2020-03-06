@@ -1,6 +1,9 @@
+extern crate rand;
+
 use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
 use super::rule::{is_rule_3, is_rule_5, NounIsNominalRule, Rule};
+use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::VecDeque;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -24,10 +27,11 @@ pub struct Level {
     grid: Vec<Vec<OrientedElement>>,
     old_grids: VecDeque<Vec<Vec<OrientedElement>>>,
     pub rules: Vec<Rule>,
+    rng: StdRng,
 }
 
 impl Level {
-    pub fn new(width: usize, height: usize) -> Level {
+    pub fn new(width: usize, height: usize, seed: Option<[u8; 32]>) -> Level {
         assert!(width > 2 && height > 2);
         let mut level = Level {
             width,
@@ -35,6 +39,7 @@ impl Level {
             grid: Vec::with_capacity(width * height),
             old_grids: VecDeque::new(),
             rules: Vec::new(),
+            rng: SeedableRng::from_seed(seed.unwrap_or([0; 32])),
         };
 
         for _ in 0..height * width {
@@ -231,6 +236,56 @@ impl Level {
         }
         self.process_moves(moves_to_do);
 
+        let mut tele_moves_to_do: Vec<((usize, usize), Vec<(usize, usize)>, OrientedElement)> =
+            Vec::new();
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let find_tele_item_result = self
+                    .get_oriented_elements(x, y)
+                    .iter()
+                    .find(|&oel| self.is_adjective(&oel.element, Adjective::TELE));
+                if let Some(tele_oriented_element) = find_tele_item_result {
+                    let mut targets: Vec<(usize, usize)> = Vec::new();
+                    for target_x in 0..self.width {
+                        for target_y in 0..self.height {
+                            if target_x == x && target_y == y {
+                                continue;
+                            }
+                            let is_eligible_tele_target = self
+                                .get_oriented_elements(target_x, target_y)
+                                .iter()
+                                .any(|&oel| &oel.element == &tele_oriented_element.element);
+
+                            if is_eligible_tele_target {
+                                targets.push((target_x, target_y));
+                            }
+                        }
+                    }
+
+                    if targets.len() > 0 {
+                        for oriented_element in self.get_oriented_elements(x, y) {
+                            if oriented_element != tele_oriented_element {
+                                tele_moves_to_do.push((
+                                    (x, y),
+                                    targets.clone(),
+                                    oriented_element.clone(),
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (from, targets, oriented_element) in tele_moves_to_do {
+            let target = targets[self.rng.gen_range(0, targets.len())];
+            self.move_element(
+                from,
+                target,
+                oriented_element.element,
+                oriented_element.orientation,
+            );
+        }
+
         self.cleanup();
         self.build_rules();
         self.cleanup();
@@ -361,18 +416,27 @@ impl Level {
             }
 
             for element_to_move in elements_to_move {
-                let index_to_remove = self
-                    .get_oriented_elements(x, y)
-                    .iter()
-                    .position(|&oel| oel.element == element_to_move)
-                    .unwrap();
-                let old_index = self.get_grid_index(x, y);
-                let new_index = self.get_grid_index(new_x, new_y);
-                self.grid[old_index].remove(index_to_remove);
-
-                self.grid[new_index].push(OrientedElement::new(element_to_move, direction_to_move));
+                self.move_element((x, y), (new_x, new_y), element_to_move, direction_to_move);
             }
         }
+    }
+
+    fn move_element(
+        &mut self,
+        from: (usize, usize),
+        to: (usize, usize),
+        element: Element,
+        orientation: Direction,
+    ) {
+        let index_to_remove = self
+            .get_oriented_elements(from.0, from.1)
+            .iter()
+            .position(|&oel| oel.element == element)
+            .unwrap();
+        let old_index = self.get_grid_index(from.0, from.1);
+        let new_index = self.get_grid_index(to.0, to.1);
+        self.grid[old_index].remove(index_to_remove);
+        self.grid[new_index].push(OrientedElement::new(element, orientation));
     }
 
     fn cleanup(&mut self) {

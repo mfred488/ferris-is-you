@@ -30,7 +30,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::FLAG)))) => return "Fg",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::WALL)))) => return "Wa",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::WATER)))) => return "Wt",
-        Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::TEXT)))) => return "Te",
+        Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::TEXT)))) => return "Tx",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::LAVA)))) => return "La",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::KEY)))) => return "Ke",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::DOOR)))) => return "Do",
@@ -64,6 +64,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::SHUT)))) => return "Cl",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::WEAK)))) => return "We",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::PULL)))) => return "Pl",
+        Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::TELE)))) => return "Te",
         None => return "..",
     };
 }
@@ -96,7 +97,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "Fg" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::FLAG)))),
         "Wa" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::WALL)))),
         "Wt" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::WATER)))),
-        "Te" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::TEXT)))),
+        "Tx" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::TEXT)))),
         "La" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::LAVA)))),
         "Ke" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::KEY)))),
         "Do" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::DOOR)))),
@@ -160,12 +161,15 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "Pl" => Some(Element::Text(Text::Nominal(Nominal::Adjective(
             Adjective::PULL,
         )))),
+        "Te" => Some(Element::Text(Text::Nominal(Nominal::Adjective(
+            Adjective::TELE,
+        )))),
         ".." => None,
         _ => panic!("Unknown character {}", chars),
     }
 }
 
-pub fn build_level_from_lines(lines: std::str::Lines) -> Level {
+pub fn build_level_from_lines(lines: std::str::Lines, seed: Option<[u8; 32]>) -> Level {
     let mut width = 0;
     let mut height = 0;
     let mut elements_to_add: Vec<(usize, usize, Element)> = Vec::new();
@@ -209,7 +213,7 @@ pub fn build_level_from_lines(lines: std::str::Lines) -> Level {
         width = local_width / 2;
     }
 
-    let mut level = Level::new(width, height);
+    let mut level = Level::new(width, height, seed);
     for (x, y, element) in elements_to_add {
         level.add_element(x, y, element);
     }
@@ -217,11 +221,11 @@ pub fn build_level_from_lines(lines: std::str::Lines) -> Level {
     level
 }
 
-pub fn build_level_from_file(file_path: String) -> Level {
+pub fn build_level_from_file(file_path: String, seed: Option<[u8; 32]>) -> Level {
     let file_content = fs::read_to_string(file_path).expect("Could not open file !");
     let lines = file_content.lines();
 
-    build_level_from_lines(lines)
+    build_level_from_lines(lines, seed)
 }
 
 pub fn get_level_lines(level: &Level) -> Vec<String> {

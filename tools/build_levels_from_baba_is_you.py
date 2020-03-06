@@ -59,7 +59,7 @@ known_elements = {
     0x400: "St",
     0x401: "Mv",
     0x402: "..", # Best text
-    0x403: "..", # Tele
+    0x403: "Te", # Tele
     0x404: "🤚",
     0x405: "..", # Left text
     0x406: "Sr",
@@ -83,7 +83,7 @@ known_elements = {
     0x601: "Sk",
     0x602: "Lv",
     0x603: "Do",
-    0x604: "Te",
+    0x604: "Tx",
     0x605: "..", # Sleep text
     0x606: "..", # Dust text
     0x607: "..", # Single letter

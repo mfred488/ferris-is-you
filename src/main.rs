@@ -1,5 +1,4 @@
 extern crate termion;
-
 mod core;
 mod unicode;
 
@@ -70,7 +69,7 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
 }
 
 fn main() {
-    let mut level = build_level_from_file(String::from("levels/test.txt"));
+    let mut level = build_level_from_file(String::from("levels/test.txt"), None);
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
