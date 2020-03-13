@@ -59,7 +59,7 @@ known_elements = {
     0x400: "St",
     0x401: "Mv",
     0x402: "..", # Best text
-    0x403: "Te", # Tele
+    0x403: "Te",
     0x404: "🤚",
     0x405: "..", # Left text
     0x406: "Sr",
@@ -103,7 +103,7 @@ known_elements = {
     0x709: "..", # Belt text
     0x70a: "..", # Me
     0x70b: "..", # Me text
-    0x802: "..", # Swap text
+    0x802: "Sw",
     0x803: "Pl",
     0x804: "..", # On text
     0x806: "🌙",

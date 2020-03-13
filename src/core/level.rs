@@ -89,29 +89,21 @@ impl Level {
         if let Some(input_direction) = input {
             for x in 0..self.width {
                 for y in 0..self.height {
-                    if self.can_move(x, y, &input_direction) {
-                        let mut elements_to_move: Vec<Element> = Vec::new();
-                        for oriented_element in self.get_oriented_elements(x, y) {
-                            if self.is_adjective(&oriented_element.element, Adjective::YOU) {
+                    let mut elements_to_move: Vec<Element> = Vec::new();
+                    for (index, oriented_element) in
+                        self.get_oriented_elements(x, y).iter().enumerate()
+                    {
+                        if self.is_adjective(&oriented_element.element, Adjective::YOU) {
+                            if self.can_move(x, y, &oriented_element.element, &input_direction) {
                                 elements_to_move.push(oriented_element.element.clone());
+                            } else if self.is_adjective(&oriented_element.element, Adjective::WEAK)
+                            {
+                                elements_to_destroy.push((index, x, y));
                             }
                         }
-                        if elements_to_move.len() > 0 {
-                            moves_to_do.push_back((
-                                elements_to_move,
-                                x,
-                                y,
-                                input_direction.clone(),
-                            ));
-                        }
-                    } else {
-                        for (index, oriented_element) in
-                            self.get_oriented_elements(x, y).iter().enumerate()
-                        {
-                            if self.is_adjective(&oriented_element.element, Adjective::WEAK) {
-                                elements_to_destroy.push((index, x, y))
-                            }
-                        }
+                    }
+                    if elements_to_move.len() > 0 {
+                        moves_to_do.push_back((elements_to_move, x, y, input_direction.clone()));
                     }
                 }
             }
@@ -137,43 +129,34 @@ impl Level {
                 .iter()
                 {
                     let opposite_direction = get_opposite_direction(direction);
-                    if self.can_move(x, y, direction) {
-                        let mut elements_to_move: Vec<Element> = Vec::new();
-                        for oriented_element in self.get_oriented_elements(x, y) {
-                            if self.is_adjective(&oriented_element.element, Adjective::MOVE)
-                                && &oriented_element.orientation == direction
-                            {
-                                elements_to_move.push(oriented_element.element.clone());
-                            }
-                        }
-
-                        if !self.can_move(x, y, &opposite_direction) {
-                            for oriented_element in self.get_oriented_elements(x, y) {
-                                // If this element is weak, it won't turn around, but will be destroyed (cf below)
-                                if self.is_adjective(&oriented_element.element, Adjective::MOVE)
-                                    && !self
-                                        .is_adjective(&oriented_element.element, Adjective::WEAK)
-                                    && oriented_element.orientation == opposite_direction
-                                {
-                                    elements_to_move.push(oriented_element.element.clone());
-                                }
-                            }
-                        }
-
-                        if elements_to_move.len() > 0 {
-                            moves_to_do.push_back((elements_to_move, x, y, *direction));
-                        }
-                    } else {
-                        for (index, oriented_element) in
-                            self.get_oriented_elements(x, y).iter().enumerate()
+                    let mut elements_to_move: Vec<Element> = Vec::new();
+                    for (index, oriented_element) in
+                        self.get_oriented_elements(x, y).iter().enumerate()
+                    {
+                        if self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                            && &oriented_element.orientation == direction
                         {
-                            if self.is_adjective(&oriented_element.element, Adjective::WEAK)
-                                && self.is_adjective(&oriented_element.element, Adjective::MOVE)
-                                && &oriented_element.orientation == direction
+                            if self.can_move(x, y, &oriented_element.element, direction) {
+                                elements_to_move.push(oriented_element.element.clone());
+                            } else if self.is_adjective(&oriented_element.element, Adjective::WEAK)
                             {
-                                elements_to_destroy.push((index, x, y))
+                                elements_to_destroy.push((index, x, y));
                             }
                         }
+
+                        if !self.can_move(x, y, &oriented_element.element, &opposite_direction)
+                            && self.can_move(x, y, &oriented_element.element, direction)
+                            && self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                            && oriented_element.orientation == opposite_direction
+                            && !self.is_adjective(&oriented_element.element, Adjective::WEAK)
+                        {
+                            // If this element is weak, it won't turn around, but will be destroyed (cf above)
+                            elements_to_move.push(oriented_element.element.clone());
+                        }
+                    }
+
+                    if elements_to_move.len() > 0 {
+                        moves_to_do.push_back((elements_to_move, x, y, *direction));
                     }
                 }
             }
@@ -206,13 +189,13 @@ impl Level {
 
                 if let Some(new_cell_orientation) = new_cell_orientation {
                     let grid_index = self.get_grid_index(x, y);
+                    let mut elements_to_move: Vec<Element> = Vec::new();
                     for mut oriented_element in &mut self.grid[grid_index] {
                         oriented_element.orientation = new_cell_orientation.clone();
                     }
 
-                    if self.can_move(x, y, &new_cell_orientation) {
-                        let mut elements_to_move: Vec<Element> = Vec::new();
-                        for oriented_element in self.get_oriented_elements(x, y) {
+                    for oriented_element in self.get_oriented_elements(x, y) {
+                        if self.can_move(x, y, &oriented_element.element, &new_cell_orientation) {
                             if number_of_shift_elements > 1 {
                                 elements_to_move.push(oriented_element.element.clone());
                             } else if !self
@@ -222,14 +205,15 @@ impl Level {
                                 elements_to_move.push(oriented_element.element.clone());
                             }
                         }
-                        if elements_to_move.len() > 0 {
-                            moves_to_do.push_back((
-                                elements_to_move,
-                                x,
-                                y,
-                                new_cell_orientation.clone(),
-                            ));
-                        }
+                    }
+
+                    if elements_to_move.len() > 0 {
+                        moves_to_do.push_back((
+                            elements_to_move,
+                            x,
+                            y,
+                            new_cell_orientation.clone(),
+                        ));
                     }
                 }
             }
@@ -294,9 +278,17 @@ impl Level {
         self.is_win()
     }
 
-    fn can_move(&self, x: usize, y: usize, direction: &Direction) -> bool {
+    fn can_move(&self, x: usize, y: usize, element: &Element, direction: &Direction) -> bool {
         if let Some((new_x, new_y)) = self.get_next_location(x, y, &direction) {
+            if self.is_adjective(element, Adjective::SWAP) {
+                return true;
+            }
             for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
+                // Can always swap
+                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::SWAP) {
+                    return true;
+                }
+
                 // Can't pass stop objects
                 if self.is_adjective(&oriented_element_in_next_location.element, Adjective::STOP) {
                     return false;
@@ -304,7 +296,12 @@ impl Level {
 
                 if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
                     // Can't move if push objects can't be pushed
-                    if !self.can_move(new_x, new_y, direction) {
+                    if !self.can_move(
+                        new_x,
+                        new_y,
+                        &oriented_element_in_next_location.element,
+                        direction,
+                    ) {
                         return false;
                     }
                 } else if self
@@ -379,13 +376,35 @@ impl Level {
                 Direction::LEFT => new_x = new_x - 1,
                 Direction::RIGHT => new_x = new_x + 1,
             }
+            let opposite_direction = get_opposite_direction(&direction_to_move);
 
+            let should_swap_all = elements_to_move
+                .iter()
+                .any(|&el| self.is_adjective(&el, Adjective::SWAP));
+
+            let mut elements_in_next_location_to_swap_with: Vec<Element> = Vec::new();
             let mut elements_in_next_location_to_push: Vec<Element> = Vec::new();
             for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
-                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
+                if should_swap_all
+                    || self
+                        .is_adjective(&oriented_element_in_next_location.element, Adjective::SWAP)
+                {
+                    elements_in_next_location_to_swap_with
+                        .push(oriented_element_in_next_location.element.clone());
+                } else if self
+                    .is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH)
+                {
                     elements_in_next_location_to_push
                         .push(oriented_element_in_next_location.element.clone());
                 }
+            }
+            if elements_in_next_location_to_swap_with.len() > 0 {
+                moves_to_do.push_back((
+                    elements_in_next_location_to_swap_with,
+                    new_x,
+                    new_y,
+                    opposite_direction,
+                ));
             }
             if elements_in_next_location_to_push.len() > 0 {
                 moves_to_do.push_back((
@@ -396,7 +415,6 @@ impl Level {
                 ));
             }
 
-            let opposite_direction = get_opposite_direction(&direction_to_move);
             if let Some((pulled_x, pulled_y)) = self.get_next_location(x, y, &opposite_direction) {
                 let elements_to_pull: Vec<Element> = self
                     .get_oriented_elements(pulled_x, pulled_y)

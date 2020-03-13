@@ -23,9 +23,10 @@ The project is at the very early stage of its development. It only runs in a ter
 * has
 * weak
 * pull
+* tele
+* swap
 
 ## Not (yet) supported words
-* tele
 * all
 * empty
 * more
@@ -34,7 +35,6 @@ The project is at the very early stage of its development. It only runs in a ter
 * near
 * lonely
 * fall
-* swap
 * make (Garden 10)
 * word
 * up/right (Forest E, 6, 8)
