@@ -42,6 +42,7 @@ fn push_and_swap() {
     utils::assert_evolution(start, inputs, end);
 }
 
+#[test]
 // Baba is you: Forest C
 fn does_not_change_orientation() {
     let start = vec![
