@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import zlib
 
@@ -29,7 +31,7 @@ known_elements = {
     0x105: "..", # Near text
     0x108: "Fu",
     0x10a: "ET",
-    0x106: "..", # Cloud
+    0x106: "☁️",
     0x107: "..", # Pillar
     0x109: "Fe",
     0x10b: "Fg",
@@ -39,7 +41,7 @@ known_elements = {
     0x203: "..", # Single letter
     0x204: "..", # All text
     0x205: "..", # Right
-    0x206: "..", # Single letter
+    0x206: "Cd", # Cloud
     0x207: "..", # Pillar text
     0x208: "🍄",
     0x209: "..", # Rock text
@@ -97,7 +99,7 @@ known_elements = {
     0x703: "Bx",
     0x704: "..", # Belt
     0x705: "..", # Make text
-    0x706: "..", # Fall text
+    0x706: "Fa",
     0x707: "..", # Flower
     0x708: "..", # Fence text
     0x709: "..", # Belt text
@@ -108,8 +110,8 @@ known_elements = {
     0x804: "..", # On text
     0x806: "🌙",
     0x808: "..", # Fence
-    0x900: "Cf",
-    0x901: "⛰️",
+    0x900: "⛰️",
+    0x901: "Cf",
     0x902: "..", # Level text
     0x903: "..", # Orb text
     0x904: "..", # Small tree ? decorative in ruins 4

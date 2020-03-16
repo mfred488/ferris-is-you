@@ -20,6 +20,7 @@ pub enum Object {
     BOX,
     CLIFF,
     GHOST,
+    CLOUD,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -58,6 +59,7 @@ pub enum Noun {
     BOX,
     CLIFF,
     GHOST,
+    CLOUD,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -90,6 +92,7 @@ pub enum Adjective {
     PULL,
     TELE,
     SWAP,
+    FALL,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -121,6 +124,7 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::BOX) => Noun::BOX,
         Element::Object(Object::CLIFF) => Noun::CLIFF,
         Element::Object(Object::GHOST) => Noun::GHOST,
+        Element::Object(Object::CLOUD) => Noun::CLOUD,
     }
 }
 
@@ -146,6 +150,7 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::BOX => Element::Object(Object::BOX),
         Noun::CLIFF => Element::Object(Object::CLIFF),
         Noun::GHOST => Element::Object(Object::GHOST),
+        Noun::CLOUD => Element::Object(Object::CLOUD),
         Noun::TEXT => Element::Text(Text::Nominal(Nominal::Noun(get_noun(original_element)))),
     }
 }

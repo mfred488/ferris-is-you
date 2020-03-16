@@ -25,6 +25,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Object(Object::BOX)) => return "📦",
         Some(Element::Object(Object::CLIFF)) => return "⛰️",
         Some(Element::Object(Object::GHOST)) => return "👻",
+        Some(Element::Object(Object::CLOUD)) => return "☁️",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::FERRIS)))) => return "Fe",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::ROCKET)))) => return "Ro",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::FLAG)))) => return "Fg",
@@ -46,6 +47,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::BOX)))) => return "Bx",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::CLIFF)))) => return "Cf",
         Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::GHOST)))) => return "Gh",
+        Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::CLOUD)))) => return "Cd",
         Some(Element::Text(Text::Verb(Verb::IS))) => return "==",
         Some(Element::Text(Text::Verb(Verb::HAS))) => return "Ha",
         Some(Element::Text(Text::Conjunction(Conjunction::AND))) => return "&&",
@@ -66,6 +68,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::PULL)))) => return "Pl",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::TELE)))) => return "Te",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::SWAP)))) => return "Sw",
+        Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::FALL)))) => return "Fa",
         None => return "..",
     };
 }
@@ -93,6 +96,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "📦" => Some(Element::Object(Object::BOX)),
         "⛰️" => Some(Element::Object(Object::CLIFF)),
         "👻" => Some(Element::Object(Object::GHOST)),
+        "☁️" => Some(Element::Object(Object::CLOUD)),
         "Fe" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::FERRIS)))),
         "Ro" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::ROCKET)))),
         "Fg" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::FLAG)))),
@@ -114,6 +118,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "Bx" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::BOX)))),
         "Cf" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::CLIFF)))),
         "Gh" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::GHOST)))),
+        "Cd" => Some(Element::Text(Text::Nominal(Nominal::Noun(Noun::CLOUD)))),
         "==" => Some(Element::Text(Text::Verb(Verb::IS))),
         "Ha" => Some(Element::Text(Text::Verb(Verb::HAS))),
         "&&" => Some(Element::Text(Text::Conjunction(Conjunction::AND))),
@@ -167,6 +172,9 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         )))),
         "Sw" => Some(Element::Text(Text::Nominal(Nominal::Adjective(
             Adjective::SWAP,
+        )))),
+        "Fa" => Some(Element::Text(Text::Nominal(Nominal::Adjective(
+            Adjective::FALL,
         )))),
         ".." => None,
         _ => panic!("Unknown character {}", chars),

@@ -447,6 +447,7 @@ impl Level {
                 }
             }
 
+            let mut elements_to_fall: Vec<OrientedElement> = Vec::new();
             for element_to_move in oriented_elements_to_move {
                 self.move_element(
                     (x, y),
@@ -458,6 +459,16 @@ impl Level {
                         direction_to_move
                     },
                 );
+
+                if self.is_adjective(&element_to_move.element, Adjective::FALL)
+                    && self.can_move(new_x, new_y, &element_to_move.element, &Direction::DOWN)
+                {
+                    elements_to_fall.push(element_to_move.clone())
+                }
+            }
+
+            if elements_to_fall.len() > 0 {
+                moves_to_do.push_back((elements_to_fall, new_x, new_y, Direction::DOWN, true));
             }
         }
     }
