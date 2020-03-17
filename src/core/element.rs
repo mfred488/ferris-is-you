@@ -21,6 +21,9 @@ pub enum Object {
     CLIFF,
     GHOST,
     CLOUD,
+    ME,
+    FENCE,
+    STATUE,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -60,6 +63,9 @@ pub enum Noun {
     CLIFF,
     GHOST,
     CLOUD,
+    ME,
+    FENCE,
+    STATUE,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -125,6 +131,9 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::CLIFF) => Noun::CLIFF,
         Element::Object(Object::GHOST) => Noun::GHOST,
         Element::Object(Object::CLOUD) => Noun::CLOUD,
+        Element::Object(Object::ME) => Noun::ME,
+        Element::Object(Object::FENCE) => Noun::FENCE,
+        Element::Object(Object::STATUE) => Noun::STATUE,
     }
 }
 
@@ -151,6 +160,9 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::CLIFF => Element::Object(Object::CLIFF),
         Noun::GHOST => Element::Object(Object::GHOST),
         Noun::CLOUD => Element::Object(Object::CLOUD),
+        Noun::ME => Element::Object(Object::ME),
+        Noun::FENCE => Element::Object(Object::FENCE),
+        Noun::STATUE => Element::Object(Object::STATUE),
         Noun::TEXT => Element::Text(Text::Nominal(Nominal::Noun(get_noun(original_element)))),
     }
 }

@@ -101,15 +101,15 @@ known_elements = {
     0x705: "..", # Make text
     0x706: "Fa",
     0x707: "..", # Flower
-    0x708: "..", # Fence text
+    0x708: "Fn",
     0x709: "..", # Belt text
-    0x70a: "..", # Me
-    0x70b: "..", # Me text
+    0x70a: "🙂",
+    0x70b: "M€",
     0x802: "Sw",
     0x803: "Pl",
     0x804: "..", # On text
     0x806: "🌙",
-    0x808: "..", # Fence
+    0x808: "🚧",
     0x900: "⛰️",
     0x901: "Cf",
     0x902: "..", # Level text
@@ -122,8 +122,8 @@ known_elements = {
     0x909: "..", # Some kind of tiles ? decorative in cavern 6
     0x90a: "..", # Single letter
     0xa09: "..", # Facing text
-    0xa01: "..", # Statue text
-    0xa02: "..", # Statue
+    0xa01: "Su",
+    0xa02: "🗿",
     0xa05: "..", # ???
     0xa08: "..", # Some kind of line ...
     0xa0a: "👻",
