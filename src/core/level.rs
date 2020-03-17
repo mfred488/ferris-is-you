@@ -279,6 +279,32 @@ impl Level {
                 oriented_element.orientation,
             );
         }
+        self.cleanup();
+
+        loop {
+            let mut moves_to_do: VecDeque<(Vec<OrientedElement>, usize, usize, Direction, bool)> =
+                VecDeque::new();
+            for x in 0..self.width {
+                for y in 0..self.height {
+                    let mut elements_to_move: Vec<OrientedElement> = Vec::new();
+                    for oriented_element in self.get_oriented_elements(x, y) {
+                        if self.is_adjective(&oriented_element.element, Adjective::FALL)
+                            && self.can_move(x, y, &oriented_element.element, &Direction::DOWN)
+                        {
+                            elements_to_move.push(oriented_element.clone())
+                        }
+                    }
+
+                    if elements_to_move.len() > 0 {
+                        moves_to_do.push_back((elements_to_move, x, y, Direction::DOWN, true));
+                    }
+                }
+            }
+            if moves_to_do.len() == 0 {
+                break;
+            }
+            self.process_moves(moves_to_do);
+        }
 
         self.cleanup();
         self.build_rules();
@@ -447,7 +473,6 @@ impl Level {
                 }
             }
 
-            let mut elements_to_fall: Vec<OrientedElement> = Vec::new();
             for element_to_move in oriented_elements_to_move {
                 self.move_element(
                     (x, y),
@@ -459,16 +484,6 @@ impl Level {
                         direction_to_move
                     },
                 );
-
-                if self.is_adjective(&element_to_move.element, Adjective::FALL)
-                    && self.can_move(new_x, new_y, &element_to_move.element, &Direction::DOWN)
-                {
-                    elements_to_fall.push(element_to_move.clone())
-                }
-            }
-
-            if elements_to_fall.len() > 0 {
-                moves_to_do.push_back((elements_to_fall, new_x, new_y, Direction::DOWN, true));
             }
         }
     }

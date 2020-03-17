@@ -41,7 +41,7 @@ fn blocked_by_push() {
     utils::assert_evolution(start, inputs, end);
 }
 
-// #[test]
+#[test]
 // Baba is you: Cavern 3
 fn can_pull_upwards() {
     let start = vec![
