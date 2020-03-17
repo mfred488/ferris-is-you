@@ -24,6 +24,9 @@ pub enum Object {
     ME,
     FENCE,
     STATUE,
+    ROCK,
+    GRASS,
+    FLOWER,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -66,6 +69,9 @@ pub enum Noun {
     ME,
     FENCE,
     STATUE,
+    ROCK,
+    GRASS,
+    FLOWER,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -134,6 +140,9 @@ pub fn get_noun(element: &Element) -> Noun {
         Element::Object(Object::ME) => Noun::ME,
         Element::Object(Object::FENCE) => Noun::FENCE,
         Element::Object(Object::STATUE) => Noun::STATUE,
+        Element::Object(Object::ROCK) => Noun::ROCK,
+        Element::Object(Object::GRASS) => Noun::GRASS,
+        Element::Object(Object::FLOWER) => Noun::FLOWER,
     }
 }
 
@@ -163,6 +172,9 @@ pub fn transform_into(original_element: &Element, noun: &Noun) -> Element {
         Noun::ME => Element::Object(Object::ME),
         Noun::FENCE => Element::Object(Object::FENCE),
         Noun::STATUE => Element::Object(Object::STATUE),
+        Noun::ROCK => Element::Object(Object::ROCK),
+        Noun::GRASS => Element::Object(Object::GRASS),
+        Noun::FLOWER => Element::Object(Object::FLOWER),
         Noun::TEXT => Element::Text(Text::Nominal(Nominal::Noun(get_noun(original_element)))),
     }
 }

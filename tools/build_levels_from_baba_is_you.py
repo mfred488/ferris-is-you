@@ -14,8 +14,8 @@ warning_levels = {}
 known_elements = {
     0x1: "🦀",
     0x2: "👽",
-    0x3: "..", # Rock
-    0x4: "..", # Grass text
+    0x3: "💎",
+    0x4: "Gr",
     0x5: "..", # Tile
     0x6: "&&",
     0x7: "..", # ??? looks like an empty tile in Gallery
@@ -44,7 +44,7 @@ known_elements = {
     0x206: "Cd", # Cloud
     0x207: "..", # Pillar text
     0x208: "🍄",
-    0x209: "..", # Rock text
+    0x209: "Rc",
     0x20a: "La",
     0x20b: "Wa",
     0x300: "Ic",
@@ -77,11 +77,11 @@ known_elements = {
     0x504: "Hd",
     0x505: "..", # Down text
     0x506: "..", # Dust
-    0x507: "..", # Flower text
+    0x507: "Fw",
     0x508: "Ro",
     0x50a: "Df",
     0x50b: "💀",
-    0x600: "..", # Grass
+    0x600: "🌿",
     0x601: "Sk",
     0x602: "Lv",
     0x603: "Do",
@@ -100,7 +100,7 @@ known_elements = {
     0x704: "..", # Belt
     0x705: "..", # Make text
     0x706: "Fa",
-    0x707: "..", # Flower
+    0x707: "🌼",
     0x708: "Fn",
     0x709: "..", # Belt text
     0x70a: "🙂",
