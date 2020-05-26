@@ -94,11 +94,15 @@ impl Level {
                     for (index, oriented_element) in
                         self.get_oriented_elements(x, y).iter().enumerate()
                     {
-                        if self.is_adjective(&oriented_element.element, Adjective::YOU) {
+                        if self.is_adjective(&oriented_element.element, x, y, Adjective::YOU) {
                             if self.can_move(x, y, &oriented_element.element, &input_direction) {
                                 elements_to_move.push(oriented_element.clone());
-                            } else if self.is_adjective(&oriented_element.element, Adjective::WEAK)
-                            {
+                            } else if self.is_adjective(
+                                &oriented_element.element,
+                                x,
+                                y,
+                                Adjective::WEAK,
+                            ) {
                                 elements_to_destroy.push((index, x, y));
                             }
                         }
@@ -141,22 +145,26 @@ impl Level {
                     for (index, oriented_element) in
                         self.get_oriented_elements(x, y).iter().enumerate()
                     {
-                        if self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                        if self.is_adjective(&oriented_element.element, x, y, Adjective::MOVE)
                             && &oriented_element.orientation == direction
                         {
                             if self.can_move(x, y, &oriented_element.element, direction) {
                                 elements_to_move.push(oriented_element.clone());
-                            } else if self.is_adjective(&oriented_element.element, Adjective::WEAK)
-                            {
+                            } else if self.is_adjective(
+                                &oriented_element.element,
+                                x,
+                                y,
+                                Adjective::WEAK,
+                            ) {
                                 elements_to_destroy.push((index, x, y));
                             }
                         }
 
                         if !self.can_move(x, y, &oriented_element.element, &opposite_direction)
                             && self.can_move(x, y, &oriented_element.element, direction)
-                            && self.is_adjective(&oriented_element.element, Adjective::MOVE)
+                            && self.is_adjective(&oriented_element.element, x, y, Adjective::MOVE)
                             && oriented_element.orientation == opposite_direction
-                            && !self.is_adjective(&oriented_element.element, Adjective::WEAK)
+                            && !self.is_adjective(&oriented_element.element, x, y, Adjective::WEAK)
                         {
                             // If this element is weak, it won't turn around, but will be destroyed (cf above)
                             elements_to_move.push(oriented_element.clone());
@@ -185,7 +193,7 @@ impl Level {
                 let mut new_cell_orientation = None;
                 let mut number_of_shift_elements = 0;
                 for oriented_element in self.get_oriented_elements(x, y).iter().rev() {
-                    if self.is_adjective(&oriented_element.element, Adjective::SHIFT) {
+                    if self.is_adjective(&oriented_element.element, x, y, Adjective::SHIFT) {
                         number_of_shift_elements += 1;
                         match new_cell_orientation {
                             None => {
@@ -207,9 +215,12 @@ impl Level {
                         if self.can_move(x, y, &oriented_element.element, &new_cell_orientation) {
                             if number_of_shift_elements > 1 {
                                 elements_to_move.push(oriented_element.clone());
-                            } else if !self
-                                .is_adjective(&oriented_element.element, Adjective::SHIFT)
-                            {
+                            } else if !self.is_adjective(
+                                &oriented_element.element,
+                                x,
+                                y,
+                                Adjective::SHIFT,
+                            ) {
                                 // only one shift element: this element must not move
                                 elements_to_move.push(oriented_element.clone());
                             }
@@ -237,7 +248,7 @@ impl Level {
                 let find_tele_item_result = self
                     .get_oriented_elements(x, y)
                     .iter()
-                    .find(|&oel| self.is_adjective(&oel.element, Adjective::TELE));
+                    .find(|&oel| self.is_adjective(&oel.element, x, y, Adjective::TELE));
                 if let Some(tele_oriented_element) = find_tele_item_result {
                     let mut targets: Vec<(usize, usize)> = Vec::new();
                     for target_x in 0..self.width {
@@ -288,7 +299,7 @@ impl Level {
                 for y in 0..self.height {
                     let mut elements_to_move: Vec<OrientedElement> = Vec::new();
                     for oriented_element in self.get_oriented_elements(x, y) {
-                        if self.is_adjective(&oriented_element.element, Adjective::FALL)
+                        if self.is_adjective(&oriented_element.element, x, y, Adjective::FALL)
                             && self.can_move(x, y, &oriented_element.element, &Direction::DOWN)
                         {
                             elements_to_move.push(oriented_element.clone())
@@ -316,21 +327,36 @@ impl Level {
 
     fn can_move(&self, x: usize, y: usize, element: &Element, direction: &Direction) -> bool {
         if let Some((new_x, new_y)) = self.get_next_location(x, y, &direction) {
-            if self.is_adjective(element, Adjective::SWAP) {
+            if self.is_adjective(element, x, y, Adjective::SWAP) {
                 return true;
             }
             for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
                 // Can always swap
-                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::SWAP) {
+                if self.is_adjective(
+                    &oriented_element_in_next_location.element,
+                    new_x,
+                    new_y,
+                    Adjective::SWAP,
+                ) {
                     return true;
                 }
 
                 // Can't pass stop objects
-                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::STOP) {
+                if self.is_adjective(
+                    &oriented_element_in_next_location.element,
+                    new_x,
+                    new_y,
+                    Adjective::STOP,
+                ) {
                     return false;
                 }
 
-                if self.is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH) {
+                if self.is_adjective(
+                    &oriented_element_in_next_location.element,
+                    new_x,
+                    new_y,
+                    Adjective::PUSH,
+                ) {
                     // Can't move if push objects can't be pushed
                     if !self.can_move(
                         new_x,
@@ -340,9 +366,12 @@ impl Level {
                     ) {
                         return false;
                     }
-                } else if self
-                    .is_adjective(&oriented_element_in_next_location.element, Adjective::PULL)
-                {
+                } else if self.is_adjective(
+                    &oriented_element_in_next_location.element,
+                    new_x,
+                    new_y,
+                    Adjective::PULL,
+                ) {
                     // Can't move if there's a non-pushable pulled object
                     return false;
                 }
@@ -417,20 +446,27 @@ impl Level {
 
             let should_swap_all = oriented_elements_to_move
                 .iter()
-                .any(|&el| self.is_adjective(&el.element, Adjective::SWAP));
+                .any(|&el| self.is_adjective(&el.element, x, y, Adjective::SWAP));
 
             let mut elements_in_next_location_to_swap_with: Vec<OrientedElement> = Vec::new();
             let mut elements_in_next_location_to_push: Vec<OrientedElement> = Vec::new();
             for oriented_element_in_next_location in self.get_oriented_elements(new_x, new_y) {
                 if should_swap_all
-                    || self
-                        .is_adjective(&oriented_element_in_next_location.element, Adjective::SWAP)
+                    || self.is_adjective(
+                        &oriented_element_in_next_location.element,
+                        new_x,
+                        new_y,
+                        Adjective::SWAP,
+                    )
                 {
                     elements_in_next_location_to_swap_with
                         .push(oriented_element_in_next_location.clone());
-                } else if self
-                    .is_adjective(&oriented_element_in_next_location.element, Adjective::PUSH)
-                {
+                } else if self.is_adjective(
+                    &oriented_element_in_next_location.element,
+                    new_x,
+                    new_y,
+                    Adjective::PUSH,
+                ) {
                     elements_in_next_location_to_push
                         .push(oriented_element_in_next_location.clone());
                 }
@@ -458,7 +494,9 @@ impl Level {
                 let elements_to_pull: Vec<OrientedElement> = self
                     .get_oriented_elements(pulled_x, pulled_y)
                     .iter()
-                    .filter(|&oel| self.is_adjective(&oel.element, Adjective::PULL))
+                    .filter(|&oel| {
+                        self.is_adjective(&oel.element, pulled_x, pulled_y, Adjective::PULL)
+                    })
                     .map(|&oel| oel.clone())
                     .collect();
 
@@ -512,13 +550,13 @@ impl Level {
                 let mut floating_oriented_elements: Vec<OrientedElement> = self
                     .get_oriented_elements(x, y)
                     .iter()
-                    .filter(|&oel| self.is_adjective(&oel.element, Adjective::FLOAT))
+                    .filter(|&oel| self.is_adjective(&oel.element, x, y, Adjective::FLOAT))
                     .cloned()
                     .collect();
                 let mut non_floating_oriented_elements: Vec<OrientedElement> = self
                     .get_oriented_elements(x, y)
                     .iter()
-                    .filter(|&oel| !self.is_adjective(&oel.element, Adjective::FLOAT))
+                    .filter(|&oel| !self.is_adjective(&oel.element, x, y, Adjective::FLOAT))
                     .cloned()
                     .collect();
 
@@ -535,17 +573,17 @@ impl Level {
 
                     for oel in oriented_elements.iter() {
                         cell_has_sink =
-                            cell_has_sink || self.is_adjective(&oel.element, Adjective::SINK);
-                        cell_has_not_sink =
-                            cell_has_not_sink || !self.is_adjective(&oel.element, Adjective::SINK);
-                        cell_has_defeat =
-                            cell_has_defeat || self.is_adjective(&oel.element, Adjective::DEFEAT);
+                            cell_has_sink || self.is_adjective(&oel.element, x, y, Adjective::SINK);
+                        cell_has_not_sink = cell_has_not_sink
+                            || !self.is_adjective(&oel.element, x, y, Adjective::SINK);
+                        cell_has_defeat = cell_has_defeat
+                            || self.is_adjective(&oel.element, x, y, Adjective::DEFEAT);
                         cell_has_hot =
-                            cell_has_hot || self.is_adjective(&oel.element, Adjective::HOT);
+                            cell_has_hot || self.is_adjective(&oel.element, x, y, Adjective::HOT);
                         cell_has_open =
-                            cell_has_open || self.is_adjective(&oel.element, Adjective::OPEN);
+                            cell_has_open || self.is_adjective(&oel.element, x, y, Adjective::OPEN);
                         cell_has_shut =
-                            cell_has_shut || self.is_adjective(&oel.element, Adjective::SHUT);
+                            cell_has_shut || self.is_adjective(&oel.element, x, y, Adjective::SHUT);
                     }
 
                     let mut indexes_to_remove: Vec<usize> = Vec::new();
@@ -553,14 +591,16 @@ impl Level {
                     let mut index = 0;
                     for oel in oriented_elements.iter() {
                         let must_be_destroyed = (cell_has_sink && cell_has_not_sink)
-                            || (cell_has_defeat && self.is_adjective(&oel.element, Adjective::YOU))
-                            || (cell_has_hot && self.is_adjective(&oel.element, Adjective::MELT))
+                            || (cell_has_defeat
+                                && self.is_adjective(&oel.element, x, y, Adjective::YOU))
+                            || (cell_has_hot
+                                && self.is_adjective(&oel.element, x, y, Adjective::MELT))
                             || (cell_has_open
                                 && cell_has_shut
-                                && (self.is_adjective(&oel.element, Adjective::OPEN)
-                                    || self.is_adjective(&oel.element, Adjective::SHUT)))
+                                && (self.is_adjective(&oel.element, x, y, Adjective::OPEN)
+                                    || self.is_adjective(&oel.element, x, y, Adjective::SHUT)))
                             || (oriented_elements.len() > 1
-                                && self.is_adjective(&oel.element, Adjective::WEAK));
+                                && self.is_adjective(&oel.element, x, y, Adjective::WEAK));
 
                         if must_be_destroyed {
                             indexes_to_remove.push(index);
@@ -587,6 +627,7 @@ impl Level {
             match rule {
                 Rule::NounIsNominalRule(_) => {}
                 Rule::NounsGroupIsNominalsGroupRule(_) => {}
+                Rule::NounOnNounsGroupIsNominalsGroupRule(_) => {}
                 Rule::NounHasNounsRule(noun_has_nouns_rule) => {
                     if noun_has_nouns_rule.subject == get_noun(&destroyed_element.element) {
                         let mut result: Vec<OrientedElement> =
@@ -727,7 +768,7 @@ impl Level {
         results
     }
 
-    fn is_adjective(&self, element: &Element, adjective: Adjective) -> bool {
+    fn is_adjective(&self, element: &Element, x: usize, y: usize, adjective: Adjective) -> bool {
         for rule in &self.rules {
             match rule {
                 Rule::NounIsNominalRule(noun_is_nominal_rule) => {
@@ -760,13 +801,47 @@ impl Level {
                         return true;
                     }
                 }
+                Rule::NounOnNounsGroupIsNominalsGroupRule(noun_on_nouns_group_is_nominals_rule) => {
+                    let is_adjective_among_nominals = noun_on_nouns_group_is_nominals_rule
+                        .nominals
+                        .iter()
+                        .find(|&nominal| match nominal {
+                            Nominal::Adjective(local_adjective) => local_adjective == &adjective,
+                            _ => false,
+                        })
+                        .is_some();
+
+                    if noun_on_nouns_group_is_nominals_rule.subject == get_noun(element)
+                        && is_adjective_among_nominals
+                    {
+                        let mut are_underlying_elements_presents = true;
+                        for underlying_noun in
+                            &noun_on_nouns_group_is_nominals_rule.underlying_nouns
+                        {
+                            let is_underlying_element_present = self
+                                .get_oriented_elements(x, y)
+                                .iter()
+                                .find(|&oel| underlying_noun == &get_noun(&oel.element))
+                                .is_some();
+                            are_underlying_elements_presents &= is_underlying_element_present;
+
+                            if !is_underlying_element_present {
+                                break;
+                            }
+                        }
+
+                        if are_underlying_elements_presents {
+                            return true;
+                        }
+                    }
+                }
                 Rule::NounHasNounsRule(_) => {}
             }
         }
         false
     }
 
-    fn transform_element(&self, element: Element) -> Vec<Element> {
+    fn transform_element(&self, element: Element, x: usize, y: usize) -> Vec<Element> {
         for rule in &self.rules {
             match rule {
                 Rule::NounIsNominalRule(noun_is_nominal_rule) => {
@@ -802,6 +877,37 @@ impl Level {
                         }
                     }
                 }
+                Rule::NounOnNounsGroupIsNominalsGroupRule(noun_on_nouns_group_is_nominals_rule) => {
+                    if noun_on_nouns_group_is_nominals_rule.subject == get_noun(&element) {
+                        let mut are_underlying_elements_presents = true;
+                        for underlying_noun in
+                            &noun_on_nouns_group_is_nominals_rule.underlying_nouns
+                        {
+                            let is_underlying_element_present = self
+                                .get_oriented_elements(x, y)
+                                .iter()
+                                .find(|&oel| underlying_noun == &get_noun(&oel.element))
+                                .is_some();
+                            are_underlying_elements_presents &= is_underlying_element_present;
+                        }
+
+                        if are_underlying_elements_presents {
+                            let mut result: Vec<Element> = Vec::new();
+                            for nominal in &noun_on_nouns_group_is_nominals_rule.nominals {
+                                match nominal {
+                                    Nominal::Noun(target_noun) => {
+                                        result.push(transform_into(&element, &target_noun));
+                                    }
+                                    _ => {}
+                                }
+                            }
+
+                            if !result.is_empty() {
+                                return result;
+                            }
+                        }
+                    }
+                }
                 Rule::NounHasNounsRule(_) => {}
             }
         }
@@ -815,7 +921,9 @@ impl Level {
                     Vec::with_capacity(self.get_oriented_elements(x, y).len());
 
                 for oriented_element in self.get_oriented_elements(x, y) {
-                    for transformed_element in self.transform_element(oriented_element.element) {
+                    for transformed_element in
+                        self.transform_element(oriented_element.element, x, y)
+                    {
                         oriented_elements.push(OrientedElement {
                             element: transformed_element,
                             orientation: oriented_element.orientation,
@@ -832,18 +940,23 @@ impl Level {
         for x in 0..self.width {
             for y in 0..self.height {
                 for oriented_element in self.get_oriented_elements(x, y) {
-                    if !self.is_adjective(&oriented_element.element, Adjective::YOU) {
+                    if !self.is_adjective(&oriented_element.element, x, y, Adjective::YOU) {
                         continue;
                     }
 
-                    let is_float = self.is_adjective(&oriented_element.element, Adjective::FLOAT);
+                    let is_float =
+                        self.is_adjective(&oriented_element.element, x, y, Adjective::FLOAT);
 
                     for oriented_element_at_same_location in self.get_oriented_elements(x, y) {
                         if self.is_adjective(
                             &oriented_element_at_same_location.element,
+                            x,
+                            y,
                             Adjective::WIN,
                         ) && self.is_adjective(
                             &oriented_element_at_same_location.element,
+                            x,
+                            y,
                             Adjective::FLOAT,
                         ) == is_float
                         {

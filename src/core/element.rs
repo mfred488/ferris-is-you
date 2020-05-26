@@ -33,7 +33,7 @@ pub enum Object {
 pub enum Text {
     Nominal(Nominal),
     Verb(Verb),
-    Conjunction(Conjunction),
+    Misc(Misc),
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -75,8 +75,9 @@ pub enum Noun {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum Conjunction {
+pub enum Misc {
     AND,
+    ON,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
