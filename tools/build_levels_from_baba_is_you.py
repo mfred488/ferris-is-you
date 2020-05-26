@@ -38,7 +38,7 @@ known_elements = {
     0x200: "🚩",
     0x201: "❄️",
     0x202: "Sh",
-    0x203: "..", # Single letter
+    0x203: "..", # Annie (useless)
     0x204: "..", # All text
     0x205: "..", # Right
     0x206: "Cd", # Cloud
@@ -53,7 +53,7 @@ known_elements = {
     0x304: "..", # End
     0x305: "..", # Up text
     0x306: "⭐",
-    0x307: "..", # Single letter
+    0x307: "..", # Annie text (useless)
     0x308: "Ba",
     0x309: "Wa",
     0x30a: "Wi",
@@ -120,12 +120,12 @@ known_elements = {
     0x907: "..", # Group text
     0x908: "..", # Line text
     0x909: "..", # Some kind of tiles ? decorative in cavern 6
-    0x90a: "..", # Single letter
+    0x90a: "..", # Cursor
     0xa09: "..", # Facing text
     0xa01: "Su",
     0xa02: "🗿",
     0xa05: "..", # ???
-    0xa08: "..", # Some kind of line ...
+    0xa08: "..", # Some kind of line (useless)
     0xa0a: "👻",
     0xa0b: "Gh",
     0xb00: "..", # Word text
