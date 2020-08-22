@@ -2,7 +2,7 @@ extern crate rand;
 
 use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
-use super::rule::{is_rule_3, is_rule_5, NounIsNominalRule, Rule};
+use super::rule::{is_rule_3, is_rule_5, is_rule_7, NounIsNominalRule, Rule};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::VecDeque;
 
@@ -648,6 +648,7 @@ impl Level {
     }
 
     // This shall be called once the objects have moved (i.e. self.grid is up-to-date)
+    // TODO The code below starts to be pretty redundant; find a way to support variable-length rules dynamically (generated code / rust macros ? or at runtime ?)
     fn build_rules(&mut self) {
         let mut new_rules: Vec<Rule> = Vec::new();
 
@@ -661,6 +662,23 @@ impl Level {
         for x in 0..self.width {
             let mut y = 0;
             while y < self.height - 2 {
+                if y + 7 < self.height {
+                    let mut rules_7 = self.look_for_rule_7(
+                        (x, y),
+                        (x, y + 1),
+                        (x, y + 2),
+                        (x, y + 3),
+                        (x, y + 4),
+                        (x, y + 5),
+                        (x, y + 6),
+                    );
+                    if !rules_7.is_empty() {
+                        new_rules.append(&mut rules_7);
+                        y += 7;
+                        continue;
+                    }
+                }
+
                 if y + 5 < self.height {
                     let mut rules_5 = self.look_for_rule_5(
                         (x, y),
@@ -689,6 +707,23 @@ impl Level {
         for y in 0..self.height {
             let mut x = 0;
             while x < self.width - 2 {
+                if x + 7 < self.width {
+                    let mut rules_7 = self.look_for_rule_7(
+                        (x, y),
+                        (x + 1, y),
+                        (x + 2, y),
+                        (x + 3, y),
+                        (x + 4, y),
+                        (x + 5, y),
+                        (x + 6, y),
+                    );
+                    if !rules_7.is_empty() {
+                        new_rules.append(&mut rules_7);
+                        x += 7;
+                        continue;
+                    }
+                }
+
                 if x + 5 < self.width {
                     let mut rules_5 = self.look_for_rule_5(
                         (x, y),
@@ -758,6 +793,46 @@ impl Level {
                                 &el5.element,
                             ) {
                                 results.push(rule);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
+    fn look_for_rule_7(
+        &self,
+        p1: (usize, usize),
+        p2: (usize, usize),
+        p3: (usize, usize),
+        p4: (usize, usize),
+        p5: (usize, usize),
+        p6: (usize, usize),
+        p7: (usize, usize),
+    ) -> Vec<Rule> {
+        let mut results: Vec<Rule> = Vec::new();
+        for el1 in self.get_oriented_elements(p1.0, p1.1) {
+            for el2 in self.get_oriented_elements(p2.0, p2.1) {
+                for el3 in self.get_oriented_elements(p3.0, p3.1) {
+                    for el4 in self.get_oriented_elements(p4.0, p4.1) {
+                        for el5 in self.get_oriented_elements(p5.0, p5.1) {
+                            for el6 in self.get_oriented_elements(p6.0, p6.1) {
+                                for el7 in self.get_oriented_elements(p7.0, p7.1) {
+                                    if let Some(rule) = is_rule_7(
+                                        &el1.element,
+                                        &el2.element,
+                                        &el3.element,
+                                        &el4.element,
+                                        &el5.element,
+                                        &el6.element,
+                                        &el7.element,
+                                    ) {
+                                        results.push(rule);
+                                    }
+                                }
                             }
                         }
                     }
