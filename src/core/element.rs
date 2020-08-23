@@ -78,6 +78,7 @@ pub enum Noun {
 pub enum Misc {
     AND,
     ON,
+    NEAR,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

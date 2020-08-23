@@ -76,6 +76,17 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
                 )
                 .unwrap();
             }
+            Rule::NounNearNounIsNominalsGroupRule(noun_near_noun_is_nominals_group_rule) => {
+                write!(
+                    stdout,
+                    "{}  - {:?} near {:?} is {:?}",
+                    termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                    noun_near_noun_is_nominals_group_rule.subject,
+                    noun_near_noun_is_nominals_group_rule.near_noun,
+                    noun_near_noun_is_nominals_group_rule.nominals,
+                )
+                .unwrap();
+            }
         }
     }
     stdout.flush().unwrap();

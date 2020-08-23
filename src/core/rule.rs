@@ -5,6 +5,7 @@ pub enum Rule {
     NounsGroupIsNominalsGroupRule(NounsGroupIsNominalsGroupRule),
     NounOnNounsGroupIsNominalsGroupRule(NounOnNounsGroupIsNominalsGroupRule),
     NounHasNounsRule(NounHasNounsRule),
+    NounNearNounIsNominalsGroupRule(NounNearNounIsNominalsGroupRule),
 }
 
 #[derive(Debug)]
@@ -32,11 +33,22 @@ pub struct NounHasNounsRule {
     pub objects: Vec<Noun>,
 }
 
+#[derive(Debug)]
+pub struct NounNearNounIsNominalsGroupRule {
+    pub subject: Noun,
+    pub near_noun: Noun,
+    pub nominals: Vec<Nominal>,
+}
+
 /**
  * TODO unsupported rules:
- * - A and B has C and D
- * - A and B on C is/has D
- * - any rule longer than 7
+ *  - length 5:
+ *      - A on B has C
+ *  - length 6: not supported
+ *  - length 7
+ *      - A and B has C and D
+ *      - A and B on C is/has D
+ *  - length 8+: not supported
  */
 
 pub fn is_rule_3(el1: &Element, el2: &Element, el3: &Element) -> Option<Rule> {
@@ -113,6 +125,19 @@ pub fn is_rule_5(
             NounOnNounsGroupIsNominalsGroupRule {
                 subject: subject.clone(),
                 underlying_nouns: vec![underlying_noun.clone()],
+                nominals: vec![nominal.clone()],
+            },
+        )),
+        (
+            Element::Text(Text::Nominal(Nominal::Noun(subject))),
+            Element::Text(Text::Misc(Misc::NEAR)),
+            Element::Text(Text::Nominal(Nominal::Noun(near_noun))),
+            Element::Text(Text::Verb(Verb::IS)),
+            Element::Text(Text::Nominal(nominal)),
+        ) => Some(Rule::NounNearNounIsNominalsGroupRule(
+            NounNearNounIsNominalsGroupRule {
+                subject: subject.clone(),
+                near_noun: near_noun.clone(),
                 nominals: vec![nominal.clone()],
             },
         )),

@@ -28,7 +28,7 @@ known_elements = {
     0x102: "..", # Empty text
     0x103: "..", # Tile text
     0x104: "We",
-    0x105: "..", # Near text
+    0x105: "Nr", # Near text
     0x108: "Fu",
     0x10a: "ET",
     0x106: "☁️",

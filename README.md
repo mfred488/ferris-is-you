@@ -26,14 +26,14 @@ The project is at the very early stage of its development. It only runs in a ter
 * tele
 * swap
 * fall
+* on
+* near
 
 ## Not (yet) supported words
 * all
 * empty
 * more
 * not
-* on
-* near
 * lonely
 * make (Garden 10)
 * word

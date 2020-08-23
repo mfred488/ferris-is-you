@@ -628,6 +628,7 @@ impl Level {
                 Rule::NounIsNominalRule(_) => {}
                 Rule::NounsGroupIsNominalsGroupRule(_) => {}
                 Rule::NounOnNounsGroupIsNominalsGroupRule(_) => {}
+                Rule::NounNearNounIsNominalsGroupRule(_) => {}
                 Rule::NounHasNounsRule(noun_has_nouns_rule) => {
                     if noun_has_nouns_rule.subject == get_noun(&destroyed_element.element) {
                         let mut result: Vec<OrientedElement> =
@@ -910,6 +911,44 @@ impl Level {
                         }
                     }
                 }
+                Rule::NounNearNounIsNominalsGroupRule(noun_near_noun_is_nominals_group_rule) => {
+                    let is_adjective_among_nominals = noun_near_noun_is_nominals_group_rule
+                        .nominals
+                        .iter()
+                        .find(|&nominal| match nominal {
+                            Nominal::Adjective(local_adjective) => local_adjective == &adjective,
+                            _ => false,
+                        })
+                        .is_some();
+                    if noun_near_noun_is_nominals_group_rule.subject == get_noun(element)
+                        && is_adjective_among_nominals
+                    {
+                        for direction in [
+                            Direction::UP,
+                            Direction::DOWN,
+                            Direction::LEFT,
+                            Direction::RIGHT,
+                        ]
+                        .iter()
+                        {
+                            if let Some((neighbour_x, neighbour_y)) =
+                                self.get_next_location(x, y, &direction)
+                            {
+                                if self
+                                    .get_oriented_elements(neighbour_x, neighbour_y)
+                                    .iter()
+                                    .find(|&oel| {
+                                        noun_near_noun_is_nominals_group_rule.near_noun
+                                            == get_noun(&oel.element)
+                                    })
+                                    .is_some()
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
                 Rule::NounHasNounsRule(_) => {}
             }
         }
@@ -969,6 +1008,52 @@ impl Level {
                         if are_underlying_elements_presents {
                             let mut result: Vec<Element> = Vec::new();
                             for nominal in &noun_on_nouns_group_is_nominals_rule.nominals {
+                                match nominal {
+                                    Nominal::Noun(target_noun) => {
+                                        result.push(transform_into(&element, &target_noun));
+                                    }
+                                    _ => {}
+                                }
+                            }
+
+                            if !result.is_empty() {
+                                return result;
+                            }
+                        }
+                    }
+                }
+                Rule::NounNearNounIsNominalsGroupRule(noun_near_noun_is_nominals_group_rule) => {
+                    if noun_near_noun_is_nominals_group_rule.subject == get_noun(&element) {
+                        let mut is_neighbour_present = false;
+                        for direction in [
+                            Direction::UP,
+                            Direction::DOWN,
+                            Direction::LEFT,
+                            Direction::RIGHT,
+                        ]
+                        .iter()
+                        {
+                            if let Some((neighbour_x, neighbour_y)) =
+                                self.get_next_location(x, y, &direction)
+                            {
+                                if self
+                                    .get_oriented_elements(neighbour_x, neighbour_y)
+                                    .iter()
+                                    .find(|&oel| {
+                                        noun_near_noun_is_nominals_group_rule.near_noun
+                                            == get_noun(&oel.element)
+                                    })
+                                    .is_some()
+                                {
+                                    is_neighbour_present = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if is_neighbour_present {
+                            let mut result: Vec<Element> = Vec::new();
+                            for nominal in &noun_near_noun_is_nominals_group_rule.nominals {
                                 match nominal {
                                     Nominal::Noun(target_noun) => {
                                         result.push(transform_into(&element, &target_noun));
