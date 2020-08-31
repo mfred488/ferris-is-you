@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -15,9 +15,9 @@ fn nominal() {
         "FeNrET==Sr..",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::UP,
-        ferris_is_you::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::UP,
     ];
     let end = vec![
         "..🦀........",

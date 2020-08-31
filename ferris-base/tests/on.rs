@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -13,8 +13,8 @@ fn nominal() {
         "Fe==U ......",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "..🚀........",
@@ -40,8 +40,8 @@ fn several_conditions() {
         "Fe==U ....ET==Mv",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "................",

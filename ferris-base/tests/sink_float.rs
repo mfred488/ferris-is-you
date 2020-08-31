@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn sink_destroys_non_floating_object() {
         "......Fg==Pu",
         "Fe==U Wt==Si",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "............",
         "....🦀......",
@@ -31,12 +31,12 @@ fn sink_destroys_several_objects() {
         "Fe==U Wt==Si",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::UP,
-        ferris_is_you::core::direction::Direction::LEFT,
-        ferris_is_you::core::direction::Direction::LEFT,
-        ferris_is_you::core::direction::Direction::LEFT,
-        ferris_is_you::core::direction::Direction::UP,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::LEFT,
+        ferris_base::core::direction::Direction::LEFT,
+        ferris_base::core::direction::Direction::LEFT,
+        ferris_base::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "....🦀Fg==..",
@@ -57,8 +57,8 @@ fn sink_does_not_destroy_floating_object() {
         "Fe==U Wt==Si",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "............",
@@ -79,7 +79,7 @@ fn float_on_non_floating_win_does_not_win() {
         "Fe==Fl......",
         "Fe==U Fg==Wi",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "..🦀........",
         "............",
@@ -101,8 +101,8 @@ fn float_and_sink_does_not_destroy_non_floating_object() {
         "Fe==U Wt==Si",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "............",

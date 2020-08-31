@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -49,7 +49,7 @@ fn double_move_with_input() {
         "Fe==U ......",
         "Fe==Mv......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "............",
         "......🦀....",
@@ -69,7 +69,7 @@ fn input_move_evaluation_order() {
         "............",
         "Fe==U Fg==Pu",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "Ro==Mv......",
         "....🦀🚀....",
@@ -89,7 +89,7 @@ fn push_move_evaluation_order() {
         "..🦀🚩......",
         "Fe==U Fg==Pu",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "Ro==Mv🚀....",
         "............",
@@ -109,7 +109,7 @@ fn push_then_move() {
         "Fg==Mv......",
         "Fe==U Fg==Pu",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "..🦀..🚩....",
         "............",

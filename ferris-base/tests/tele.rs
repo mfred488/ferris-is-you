@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -11,8 +11,8 @@ fn tele_only_on_same_element() {
         "Fe&&Fg==U ..",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "..🚀....🚀🦀",
@@ -35,8 +35,8 @@ fn tele_to_random_target() {
     ];
     let start_clone = start.clone();
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let inputs_clone = inputs.clone();
     let end1 = vec![

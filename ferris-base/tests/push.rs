@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn pushed_by_user() {
         "............",
         "Fe==U Fg==Pu",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "........🦀🚩",
         "....🦀🚩🚩..",
@@ -29,7 +29,7 @@ fn text_is_implicit_push() {
         "............",
         "............",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "............",
         "....🦀Fe==U ",

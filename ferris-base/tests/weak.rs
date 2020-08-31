@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -11,7 +11,7 @@ fn weak_shift_order() {
         "Fe==WeFeHaKe",
         "Fe==U Do==Sh",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "..🚪........",
         "..🔑🦀......",
@@ -43,7 +43,7 @@ fn weak_against_stop_and_edge() {
         "Fg==We..Wa==St",
         "Fg&&Fe==U ....",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "🦀🧱........🦀",
         "..🧱..........",
@@ -64,8 +64,8 @@ fn weak_and_move_against_stop_and_edge_no_turnaround() {
         "..🦀🧱......",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "Fe==Mv&&We..",

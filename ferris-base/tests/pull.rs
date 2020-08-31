@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn chained_pull() {
         "............",
         "Fe==U Fg==Pl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "..🚩🚩🦀....",
         "............",
@@ -29,7 +29,7 @@ fn pulls_only_in_move_direction() {
         "............",
         "Fe==U Fg==Pl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::UP];
+    let inputs = vec![ferris_base::core::direction::Direction::UP];
     let end = vec![
         "....🦀......",
         "..🚩........",
@@ -49,7 +49,7 @@ fn cannot_push_pull() {
         "............",
         "Fe==U Fg==Pl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::LEFT];
+    let inputs = vec![ferris_base::core::direction::Direction::LEFT];
     let end = vec![
         "..🚩🦀......",
         "............",
@@ -69,7 +69,7 @@ fn can_push_pull_if_explicit() {
         "......Fg==Pu",
         "Fe==U Fg==Pl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::LEFT];
+    let inputs = vec![ferris_base::core::direction::Direction::LEFT];
     let end = vec![
         "🚩🦀........",
         "............",
@@ -110,8 +110,8 @@ fn pulled_by_shift() {
         "......Fg==Pl",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "............",
@@ -133,7 +133,7 @@ fn you_not_pulled_by_move() {
         "......Fe==Pl",
         "......Fg==Mv",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "....🦀......",
         "......Fe==U ",

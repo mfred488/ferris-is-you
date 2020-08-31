@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn appears_after_open() {
         "Ke==OpKeHaFe",
         "Ke==U Do==Cl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "....🦀......",
         "............",
@@ -30,8 +30,8 @@ fn appears_after_melt() {
         "Fe==U La==Ho",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "....🔥🔑....",
@@ -51,7 +51,7 @@ fn appears_after_sink() {
         "WtHaFgFg==Pu",
         "Fe==U Wt==Si",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "....🚩......",
         "............",
@@ -71,8 +71,8 @@ fn appears_after_defeat() {
         "Fe==U Wt==Df",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "....🚩🌊....",
@@ -93,8 +93,8 @@ fn appears_after_weak() {
         "Fe==U Wt==We",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "....🚩🦀....",
@@ -115,8 +115,8 @@ fn appears_with_ancestors_orientation() {
         "Fe==U La==Ho",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::UP,
     ];
     let end = vec![
         "....🔥🔑....",

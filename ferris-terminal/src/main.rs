@@ -1,11 +1,9 @@
 extern crate termion;
-mod core;
-mod unicode;
 
-use crate::core::direction::Direction;
-use crate::core::level::Level;
-use crate::core::rule::Rule;
-use crate::unicode::*;
+use ferris_base::core::direction::Direction;
+use ferris_base::core::level::Level;
+use ferris_base::core::rule::Rule;
+use ferris_base::unicode::*;
 
 use std::convert::TryInto;
 use std::io::{stdin, stdout, Write};

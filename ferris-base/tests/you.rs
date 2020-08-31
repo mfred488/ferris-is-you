@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn move_up() {
         "............",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::UP];
+    let inputs = vec![ferris_base::core::direction::Direction::UP];
     let end = vec![
         "..🦀........",
         "............",
@@ -29,7 +29,7 @@ fn move_down() {
         "............",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::DOWN];
+    let inputs = vec![ferris_base::core::direction::Direction::DOWN];
     let end = vec![
         "............",
         "............",
@@ -48,7 +48,7 @@ fn move_right() {
         "............",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "............",
         "....🦀......",
@@ -67,7 +67,7 @@ fn move_left() {
         "............",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::LEFT];
+    let inputs = vec![ferris_base::core::direction::Direction::LEFT];
     let end = vec![
         "............",
         "🦀..........",
@@ -86,7 +86,7 @@ fn only_you_moves() {
         "🦀..........",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "..🦀........",
         "🚀..........",

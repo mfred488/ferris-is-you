@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn open_destroys_shut() {
         "Ke==Op......",
         "Ke==U Do==Cl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "....🔑......",
         "............",
@@ -30,8 +30,8 @@ fn open_does_not_destroy_not_shut() {
         "Ke==U ......",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "......🔑....",
@@ -51,7 +51,7 @@ fn both_open_and_shut() {
         "🦀Op........",
         "Fe==U Ke==Cl",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "....Ke......",
         "....==......",

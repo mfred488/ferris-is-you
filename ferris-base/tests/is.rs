@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn transforms_objects() {
         "..🦀Ro......",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "......Fe....",
         "......==....",
@@ -60,7 +60,7 @@ fn transforms_into_text() {
         "..🦀Tx......",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "......Fe....",
         "......==....",

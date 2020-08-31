@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -11,7 +11,7 @@ fn shifts_object() {
         "......Fg==Pu",
         "Fe==U Ro==Sh",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::LEFT];
+    let inputs = vec![ferris_base::core::direction::Direction::LEFT];
     let end = vec![
         "🚀🦀........",
         "🚩..........",
@@ -31,7 +31,7 @@ fn shift_you() {
         "............",
         "Fe==U Ro==Sh",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::LEFT];
+    let inputs = vec![ferris_base::core::direction::Direction::LEFT];
     let end = vec![
         "🚀..........",
         "🦀..........",
@@ -52,7 +52,7 @@ fn changes_orientation() {
         "Fe==U Ro==Sh",
     ];
     let inputs = vec![
-        Some(ferris_is_you::core::direction::Direction::RIGHT),
+        Some(ferris_base::core::direction::Direction::RIGHT),
         None,
         None,
     ];
@@ -76,9 +76,9 @@ fn shift_against_stop() {
         "Fe==U Ro==Sh",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "......🚀🦀🚩",
@@ -101,8 +101,8 @@ fn push_then_shift() {
         "Fe==U Ro==Sh",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::UP,
-        ferris_is_you::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::UP,
+        ferris_base::core::direction::Direction::UP,
     ];
     let end = vec![
         "🚀..........",
@@ -125,7 +125,7 @@ fn two_shift_objects_same_direction() {
         "......Fg==Pu",
         "Fe==U Ro==Sh",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::DOWN];
+    let inputs = vec![ferris_base::core::direction::Direction::DOWN];
     let end = vec![
         "............",
         "🦀..........",
@@ -148,8 +148,8 @@ fn two_shift_objects_different_directions() {
         "Fe==U Ro==Sh",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "....🦀..🚀..",

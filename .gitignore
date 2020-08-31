@@ -1,3 +1,4 @@
 /target
 **/*.rs.bk
 /levels/baba_is_you/*
+ferris-wasm/pkg

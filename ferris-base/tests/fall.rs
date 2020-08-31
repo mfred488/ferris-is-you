@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -11,7 +11,7 @@ fn blocked_by_stop() {
         "Wa==St........",
         "Fe==Fa&&U ....",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "........🦀....",
         "......🧱🧱🧱..",
@@ -30,7 +30,7 @@ fn blocked_by_push() {
         "Fg==St........",
         "Fe==Fa&&U ....",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::RIGHT];
+    let inputs = vec![ferris_base::core::direction::Direction::RIGHT];
     let end = vec![
         "........🦀....",
         "......🚩🚩🚩..",
@@ -50,7 +50,7 @@ fn can_pull_upwards() {
         "Fg==Pl....🚩",
         "Fe==Fa&&U ..",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::UP];
+    let inputs = vec![ferris_base::core::direction::Direction::UP];
     let end = vec![
         "..........🦀",
         "..........🚩",
@@ -71,8 +71,8 @@ fn through_defeat() {
         "Fe==Fa&&U ..",
     ];
     let inputs = vec![
-        ferris_is_you::core::direction::Direction::RIGHT,
-        ferris_is_you::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
+        ferris_base::core::direction::Direction::RIGHT,
     ];
     let end = vec![
         "..💀........",
@@ -98,7 +98,7 @@ fn push_then_fall() {
         "Fg==Pu....🚩",
         "Fe==Fa&&U 🦀",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::UP];
+    let inputs = vec![ferris_base::core::direction::Direction::UP];
     let end = vec![
         "............",
         "..........🚩",
@@ -139,7 +139,7 @@ fn keeps_orientation() {
         "Fe==Fa&&Mv....",
     ];
     let inputs = vec![
-        Some(ferris_is_you::core::direction::Direction::RIGHT),
+        Some(ferris_base::core::direction::Direction::RIGHT),
         None,
         None,
     ];

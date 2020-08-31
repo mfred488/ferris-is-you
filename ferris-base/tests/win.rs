@@ -1,4 +1,4 @@
-use ferris_is_you;
+use ferris_base;
 
 mod utils;
 
@@ -10,7 +10,7 @@ fn nominal() {
         "Ro==Wi......",
         "Fe==U ......",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::DOWN];
+    let inputs = vec![ferris_base::core::direction::Direction::DOWN];
     let end = vec![
         "............",
         "🚀..........",
@@ -30,7 +30,7 @@ fn simultaneous_you_and_win() {
         "..Wi🦀......",
         "............",
     ];
-    let inputs = vec![ferris_is_you::core::direction::Direction::LEFT];
+    let inputs = vec![ferris_base::core::direction::Direction::LEFT];
     let end = vec![
         "Fe==U ......",
         "==..........",
