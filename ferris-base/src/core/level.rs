@@ -7,9 +7,9 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::VecDeque;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-struct OrientedElement {
-    element: Element,
-    orientation: Direction,
+pub struct OrientedElement {
+    pub element: Element,
+    pub orientation: Direction,
 }
 
 impl OrientedElement {
@@ -48,7 +48,7 @@ impl Level {
         level
     }
 
-    fn get_grid_index(&self, x: usize, y: usize) -> usize {
+    pub fn get_grid_index(&self, x: usize, y: usize) -> usize {
         assert!(x < self.width);
         assert!(y < self.height);
         x * self.height + y
@@ -60,7 +60,7 @@ impl Level {
         self.build_rules();
     }
 
-    fn get_oriented_elements(&self, x: usize, y: usize) -> &Vec<OrientedElement> {
+    pub fn get_oriented_elements(&self, x: usize, y: usize) -> &Vec<OrientedElement> {
         &self.grid[self.get_grid_index(x, y)]
     }
 
