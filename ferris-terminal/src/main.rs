@@ -2,6 +2,7 @@ extern crate termion;
 
 use ferris_base::core::direction::Direction;
 use ferris_base::core::level::Level;
+use ferris_base::core::rule::QualifiedNoun;
 use ferris_base::core::rule::Rule;
 use ferris_base::unicode::*;
 
@@ -74,16 +75,30 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
                 )
                 .unwrap();
             }
-            Rule::NounNearNounIsNominalsGroupRule(noun_near_noun_is_nominals_group_rule) => {
-                write!(
-                    stdout,
-                    "{}  - {:?} near {:?} is {:?}",
-                    termion::cursor::Goto(1, line_number.try_into().unwrap()),
-                    noun_near_noun_is_nominals_group_rule.subject,
-                    noun_near_noun_is_nominals_group_rule.near_noun,
-                    noun_near_noun_is_nominals_group_rule.nominals,
-                )
-                .unwrap();
+            Rule::QualifiedNounIsNominalsGroupRule(qualified_noun_is_nominals_group_rule) => {
+                match qualified_noun_is_nominals_group_rule.qualified_noun {
+                    QualifiedNoun::SimpleNoun(noun) => {
+                        write!(
+                            stdout,
+                            "{}  - {:?} is {:?}",
+                            termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                            noun,
+                            qualified_noun_is_nominals_group_rule.nominals,
+                        )
+                        .unwrap();
+                    }
+                    QualifiedNoun::NounNearNoun { subject, near_noun } => {
+                        write!(
+                            stdout,
+                            "{}  - {:?} near {:?} is {:?}",
+                            termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                            subject,
+                            near_noun,
+                            qualified_noun_is_nominals_group_rule.nominals,
+                        )
+                        .unwrap();
+                    }
+                }
             }
         }
     }

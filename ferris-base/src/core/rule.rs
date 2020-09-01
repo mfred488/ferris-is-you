@@ -5,7 +5,13 @@ pub enum Rule {
     NounsGroupIsNominalsGroupRule(NounsGroupIsNominalsGroupRule),
     NounOnNounsGroupIsNominalsGroupRule(NounOnNounsGroupIsNominalsGroupRule),
     NounHasNounsRule(NounHasNounsRule),
-    NounNearNounIsNominalsGroupRule(NounNearNounIsNominalsGroupRule),
+    QualifiedNounIsNominalsGroupRule(QualifiedNounIsNominalsGroupRule),
+}
+
+#[derive(Debug)]
+pub enum QualifiedNoun {
+    SimpleNoun(Noun),
+    NounNearNoun { subject: Noun, near_noun: Noun },
 }
 
 #[derive(Debug)]
@@ -20,6 +26,7 @@ pub struct NounsGroupIsNominalsGroupRule {
     pub nominals: Vec<Nominal>,
 }
 
+// TODO Make that a QualifiedNounIsNominalsGroupRule
 #[derive(Debug)]
 pub struct NounOnNounsGroupIsNominalsGroupRule {
     pub subject: Noun,
@@ -34,9 +41,8 @@ pub struct NounHasNounsRule {
 }
 
 #[derive(Debug)]
-pub struct NounNearNounIsNominalsGroupRule {
-    pub subject: Noun,
-    pub near_noun: Noun,
+pub struct QualifiedNounIsNominalsGroupRule {
+    pub qualified_noun: QualifiedNoun,
     pub nominals: Vec<Nominal>,
 }
 
@@ -134,10 +140,12 @@ pub fn is_rule_5(
             Element::Text(Text::Nominal(Nominal::Noun(near_noun))),
             Element::Text(Text::Verb(Verb::IS)),
             Element::Text(Text::Nominal(nominal)),
-        ) => Some(Rule::NounNearNounIsNominalsGroupRule(
-            NounNearNounIsNominalsGroupRule {
-                subject: subject.clone(),
-                near_noun: near_noun.clone(),
+        ) => Some(Rule::QualifiedNounIsNominalsGroupRule(
+            QualifiedNounIsNominalsGroupRule {
+                qualified_noun: QualifiedNoun::NounNearNoun {
+                    subject: subject.clone(),
+                    near_noun: near_noun.clone(),
+                },
                 nominals: vec![nominal.clone()],
             },
         )),

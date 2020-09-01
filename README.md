@@ -52,8 +52,12 @@ The project is at the very early stage of its development. It only runs in a ter
 - [x] Restructure the code (only one monolithic file as of now)
 
 * Browser version:
-- [ ] Build a WebAssembly version, and make it run in the browser
-- [ ] Build a WebAssembly level editor
+- [x] Basic version
+- [ ] Graphical polish (font, text on 2 lines, emphasize active rules, etc.)
+- [ ] Level loading
+- [ ] Saving progress in local storage
+- [ ] Adding sounds and animations ?
+- [ ] Level editor
 
 * Unicode version:
 - [ ] Display orientation of elements (especially needed for move/shift)

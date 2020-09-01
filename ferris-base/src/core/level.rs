@@ -2,7 +2,7 @@ extern crate rand;
 
 use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
-use super::rule::{is_rule_3, is_rule_5, is_rule_7, NounIsNominalRule, Rule};
+use super::rule::{is_rule_3, is_rule_5, is_rule_7, NounIsNominalRule, QualifiedNoun, Rule};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::VecDeque;
 
@@ -628,7 +628,7 @@ impl Level {
                 Rule::NounIsNominalRule(_) => {}
                 Rule::NounsGroupIsNominalsGroupRule(_) => {}
                 Rule::NounOnNounsGroupIsNominalsGroupRule(_) => {}
-                Rule::NounNearNounIsNominalsGroupRule(_) => {}
+                Rule::QualifiedNounIsNominalsGroupRule(_) => {}
                 Rule::NounHasNounsRule(noun_has_nouns_rule) => {
                     if noun_has_nouns_rule.subject == get_noun(&destroyed_element.element) {
                         let mut result: Vec<OrientedElement> =
@@ -911,8 +911,8 @@ impl Level {
                         }
                     }
                 }
-                Rule::NounNearNounIsNominalsGroupRule(noun_near_noun_is_nominals_group_rule) => {
-                    let is_adjective_among_nominals = noun_near_noun_is_nominals_group_rule
+                Rule::QualifiedNounIsNominalsGroupRule(qualified_noun_is_nominals_group_rule) => {
+                    let is_adjective_among_nominals = qualified_noun_is_nominals_group_rule
                         .nominals
                         .iter()
                         .find(|&nominal| match nominal {
@@ -920,30 +920,35 @@ impl Level {
                             _ => false,
                         })
                         .is_some();
-                    if noun_near_noun_is_nominals_group_rule.subject == get_noun(element)
-                        && is_adjective_among_nominals
-                    {
-                        for direction in [
-                            Direction::UP,
-                            Direction::DOWN,
-                            Direction::LEFT,
-                            Direction::RIGHT,
-                        ]
-                        .iter()
-                        {
-                            if let Some((neighbour_x, neighbour_y)) =
-                                self.get_next_location(x, y, &direction)
-                            {
-                                if self
-                                    .get_oriented_elements(neighbour_x, neighbour_y)
+
+                    if is_adjective_among_nominals {
+                        match qualified_noun_is_nominals_group_rule.qualified_noun {
+                            QualifiedNoun::SimpleNoun(_) => {
+                                // TODO Refactor NounIsNominalGroupRule here
+                            }
+                            QualifiedNoun::NounNearNoun { subject, near_noun } => {
+                                if subject == get_noun(element) {
+                                    for direction in [
+                                        Direction::UP,
+                                        Direction::DOWN,
+                                        Direction::LEFT,
+                                        Direction::RIGHT,
+                                    ]
                                     .iter()
-                                    .find(|&oel| {
-                                        noun_near_noun_is_nominals_group_rule.near_noun
-                                            == get_noun(&oel.element)
-                                    })
-                                    .is_some()
-                                {
-                                    return true;
+                                    {
+                                        if let Some((neighbour_x, neighbour_y)) =
+                                            self.get_next_location(x, y, &direction)
+                                        {
+                                            if self
+                                                .get_oriented_elements(neighbour_x, neighbour_y)
+                                                .iter()
+                                                .find(|&oel| near_noun == get_noun(&oel.element))
+                                                .is_some()
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1022,49 +1027,53 @@ impl Level {
                         }
                     }
                 }
-                Rule::NounNearNounIsNominalsGroupRule(noun_near_noun_is_nominals_group_rule) => {
-                    if noun_near_noun_is_nominals_group_rule.subject == get_noun(&element) {
-                        let mut is_neighbour_present = false;
-                        for direction in [
-                            Direction::UP,
-                            Direction::DOWN,
-                            Direction::LEFT,
-                            Direction::RIGHT,
-                        ]
-                        .iter()
-                        {
-                            if let Some((neighbour_x, neighbour_y)) =
-                                self.get_next_location(x, y, &direction)
-                            {
-                                if self
-                                    .get_oriented_elements(neighbour_x, neighbour_y)
-                                    .iter()
-                                    .find(|&oel| {
-                                        noun_near_noun_is_nominals_group_rule.near_noun
-                                            == get_noun(&oel.element)
-                                    })
-                                    .is_some()
+                Rule::QualifiedNounIsNominalsGroupRule(qualified_noun_is_nominals_group_rule) => {
+                    let mut is_qualification_met = false;
+                    match qualified_noun_is_nominals_group_rule.qualified_noun {
+                        QualifiedNoun::SimpleNoun(_) => {
+                            // TODO Refactor NounIsNominalsGroupRule here
+                        }
+                        QualifiedNoun::NounNearNoun { subject, near_noun } => {
+                            if subject == get_noun(&element) {
+                                for direction in [
+                                    Direction::UP,
+                                    Direction::DOWN,
+                                    Direction::LEFT,
+                                    Direction::RIGHT,
+                                ]
+                                .iter()
                                 {
-                                    is_neighbour_present = true;
-                                    break;
+                                    if let Some((neighbour_x, neighbour_y)) =
+                                        self.get_next_location(x, y, &direction)
+                                    {
+                                        if self
+                                            .get_oriented_elements(neighbour_x, neighbour_y)
+                                            .iter()
+                                            .find(|&oel| near_noun == get_noun(&oel.element))
+                                            .is_some()
+                                        {
+                                            is_qualification_met = true;
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
+                    };
 
-                        if is_neighbour_present {
-                            let mut result: Vec<Element> = Vec::new();
-                            for nominal in &noun_near_noun_is_nominals_group_rule.nominals {
-                                match nominal {
-                                    Nominal::Noun(target_noun) => {
-                                        result.push(transform_into(&element, &target_noun));
-                                    }
-                                    _ => {}
+                    if is_qualification_met {
+                        let mut result: Vec<Element> = Vec::new();
+                        for nominal in &qualified_noun_is_nominals_group_rule.nominals {
+                            match nominal {
+                                Nominal::Noun(target_noun) => {
+                                    result.push(transform_into(&element, &target_noun));
                                 }
+                                _ => {}
                             }
+                        }
 
-                            if !result.is_empty() {
-                                return result;
-                            }
+                        if !result.is_empty() {
+                            return result;
                         }
                     }
                 }

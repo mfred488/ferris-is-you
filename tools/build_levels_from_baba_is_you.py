@@ -121,7 +121,7 @@ known_elements = {
     0x908: "..", # Line text
     0x909: "..", # Some kind of tiles ? decorative in cavern 6
     0x90a: "..", # Cursor
-    0xa09: "..", # Facing text
+    0xa09: "Fc",
     0xa01: "Su",
     0xa02: "🗿",
     0xa05: "..", # ???
