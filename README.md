@@ -28,6 +28,7 @@ The project is at the very early stage of its development. It only runs in a ter
 * fall
 * on
 * near
+* facing
 
 ## Not (yet) supported words
 * all
@@ -38,7 +39,6 @@ The project is at the very early stage of its development. It only runs in a ter
 * make (Garden 10)
 * word
 * up/right (Forest E, 6, 8)
-* facing
 
 ## Backlog:
 

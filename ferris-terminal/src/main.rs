@@ -98,6 +98,20 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
                         )
                         .unwrap();
                     }
+                    QualifiedNoun::NounFacingNoun {
+                        subject,
+                        facing_noun,
+                    } => {
+                        write!(
+                            stdout,
+                            "{}  - {:?} facing {:?} is {:?}",
+                            termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                            subject,
+                            facing_noun,
+                            qualified_noun_is_nominals_group_rule.nominals,
+                        )
+                        .unwrap();
+                    }
                 }
             }
         }

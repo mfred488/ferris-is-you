@@ -12,6 +12,7 @@ pub enum Rule {
 pub enum QualifiedNoun {
     SimpleNoun(Noun),
     NounNearNoun { subject: Noun, near_noun: Noun },
+    NounFacingNoun { subject: Noun, facing_noun: Noun },
 }
 
 #[derive(Debug)]
@@ -49,11 +50,11 @@ pub struct QualifiedNounIsNominalsGroupRule {
 /**
  * TODO unsupported rules:
  *  - length 5:
- *      - A on B has C
+ *      - A on/near/facing B has C
  *  - length 6: not supported
  *  - length 7
  *      - A and B has C and D
- *      - A and B on C is/has D
+ *      - A and B on/facing/near C is/has D
  *  - length 8+: not supported
  */
 
@@ -145,6 +146,21 @@ pub fn is_rule_5(
                 qualified_noun: QualifiedNoun::NounNearNoun {
                     subject: subject.clone(),
                     near_noun: near_noun.clone(),
+                },
+                nominals: vec![nominal.clone()],
+            },
+        )),
+        (
+            Element::Text(Text::Nominal(Nominal::Noun(subject))),
+            Element::Text(Text::Misc(Misc::FACING)),
+            Element::Text(Text::Nominal(Nominal::Noun(facing_noun))),
+            Element::Text(Text::Verb(Verb::IS)),
+            Element::Text(Text::Nominal(nominal)),
+        ) => Some(Rule::QualifiedNounIsNominalsGroupRule(
+            QualifiedNounIsNominalsGroupRule {
+                qualified_noun: QualifiedNoun::NounFacingNoun {
+                    subject: subject.clone(),
+                    facing_noun: facing_noun.clone(),
                 },
                 nominals: vec![nominal.clone()],
             },
