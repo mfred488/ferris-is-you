@@ -80,6 +80,7 @@ pub enum Misc {
     ON,
     NEAR,
     FACING,
+    LONELY,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

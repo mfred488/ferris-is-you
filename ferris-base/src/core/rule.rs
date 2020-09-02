@@ -13,6 +13,7 @@ pub enum QualifiedNoun {
     SimpleNoun(Noun),
     NounNearNoun { subject: Noun, near_noun: Noun },
     NounFacingNoun { subject: Noun, facing_noun: Noun },
+    LonelyNoun(Noun),
 }
 
 #[derive(Debug)]
@@ -76,6 +77,23 @@ pub fn is_rule_3(el1: &Element, el2: &Element, el3: &Element) -> Option<Rule> {
             subject: subject.clone(),
             objects: vec![object.clone()],
         })),
+        _ => None,
+    }
+}
+
+pub fn is_rule_4(el1: &Element, el2: &Element, el3: &Element, el4: &Element) -> Option<Rule> {
+    match (el1, el2, el3, el4) {
+        (
+            Element::Text(Text::Misc(Misc::LONELY)),
+            Element::Text(Text::Nominal(Nominal::Noun(noun))),
+            Element::Text(Text::Verb(Verb::IS)),
+            Element::Text(Text::Nominal(nominal)),
+        ) => Some(Rule::QualifiedNounIsNominalsGroupRule(
+            QualifiedNounIsNominalsGroupRule {
+                qualified_noun: QualifiedNoun::LonelyNoun(noun.clone()),
+                nominals: vec![nominal.clone()],
+            },
+        )),
         _ => None,
     }
 }

@@ -2,7 +2,9 @@ extern crate rand;
 
 use super::direction::{get_opposite_direction, Direction};
 use super::element::*;
-use super::rule::{is_rule_3, is_rule_5, is_rule_7, NounIsNominalRule, QualifiedNoun, Rule};
+use super::rule::{
+    is_rule_3, is_rule_4, is_rule_5, is_rule_7, NounIsNominalRule, QualifiedNoun, Rule,
+};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::VecDeque;
 
@@ -677,6 +679,16 @@ impl Level {
                         continue;
                     }
                 }
+
+                if y + 4 < self.height {
+                    let mut rules_4 =
+                        self.look_for_rule_4((x, y), (x, y + 1), (x, y + 2), (x, y + 3));
+                    if !rules_4.is_empty() {
+                        new_rules.append(&mut rules_4);
+                        y += 4;
+                        continue;
+                    }
+                }
                 let mut rules_3 = self.look_for_rule_3((x, y), (x, y + 1), (x, y + 2));
                 if !rules_3.is_empty() {
                     new_rules.append(&mut rules_3);
@@ -722,6 +734,16 @@ impl Level {
                         continue;
                     }
                 }
+
+                if x + 4 < self.width {
+                    let mut rules_4 =
+                        self.look_for_rule_4((x, y), (x + 1, y), (x + 2, y), (x + 3, y));
+                    if !rules_4.is_empty() {
+                        new_rules.append(&mut rules_4);
+                        x += 4;
+                        continue;
+                    }
+                }
                 let mut rules_3 = self.look_for_rule_3((x, y), (x + 1, y), (x + 2, y));
                 if !rules_3.is_empty() {
                     new_rules.append(&mut rules_3);
@@ -747,6 +769,31 @@ impl Level {
                 for el3 in self.get_oriented_elements(p3.0, p3.1) {
                     if let Some(rule) = is_rule_3(&el1.element, &el2.element, &el3.element) {
                         results.push(rule);
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
+    fn look_for_rule_4(
+        &self,
+        p1: (usize, usize),
+        p2: (usize, usize),
+        p3: (usize, usize),
+        p4: (usize, usize),
+    ) -> Vec<Rule> {
+        let mut results: Vec<Rule> = Vec::new();
+        for el1 in self.get_oriented_elements(p1.0, p1.1) {
+            for el2 in self.get_oriented_elements(p2.0, p2.1) {
+                for el3 in self.get_oriented_elements(p3.0, p3.1) {
+                    for el4 in self.get_oriented_elements(p4.0, p4.1) {
+                        if let Some(rule) =
+                            is_rule_4(&el1.element, &el2.element, &el3.element, &el4.element)
+                        {
+                            results.push(rule);
+                        }
                     }
                 }
             }
@@ -960,6 +1007,13 @@ impl Level {
                                     }
                                 }
                             }
+                            QualifiedNoun::LonelyNoun(noun) => {
+                                if noun == get_noun(&oriented_element.element)
+                                    && self.get_oriented_elements(x, y).len() == 1
+                                {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
@@ -1102,6 +1156,10 @@ impl Level {
                                     }
                                 }
                             }
+                        }
+                        QualifiedNoun::LonelyNoun(noun) => {
+                            is_qualification_met = noun == get_noun(&oriented_element.element)
+                                && self.get_oriented_elements(x, y).len() == 1;
                         }
                     };
 

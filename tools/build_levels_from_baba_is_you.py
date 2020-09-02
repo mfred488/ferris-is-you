@@ -21,7 +21,7 @@ known_elements = {
     0x7: "..", # ??? looks like an empty tile in Gallery
     0x8: "..", # Hide text
     0x9: "Fl",
-    0xa: "..", # Lonely text
+    0xa: "Lo",
     0xb: "🔥",
     0x100: "🌊",
     0x101: "🧱",

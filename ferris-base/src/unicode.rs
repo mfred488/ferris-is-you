@@ -66,6 +66,7 @@ pub fn element_to_unicode(element: Option<&Element>) -> &str {
         Some(Element::Text(Text::Misc(Misc::ON))) => return "On",
         Some(Element::Text(Text::Misc(Misc::NEAR))) => return "Nr",
         Some(Element::Text(Text::Misc(Misc::FACING))) => return "Fc",
+        Some(Element::Text(Text::Misc(Misc::LONELY))) => return "Lo",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::YOU)))) => return "U ",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::WIN)))) => return "Wi",
         Some(Element::Text(Text::Nominal(Nominal::Adjective(Adjective::STOP)))) => return "St",
@@ -152,6 +153,7 @@ pub fn unicode_to_element(chars: &str) -> Option<Element> {
         "On" => Some(Element::Text(Text::Misc(Misc::ON))),
         "Nr" => Some(Element::Text(Text::Misc(Misc::NEAR))),
         "Fc" => Some(Element::Text(Text::Misc(Misc::FACING))),
+        "Lo" => Some(Element::Text(Text::Misc(Misc::LONELY))),
         "U " => Some(Element::Text(Text::Nominal(Nominal::Adjective(
             Adjective::YOU,
         )))),

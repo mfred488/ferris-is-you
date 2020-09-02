@@ -29,13 +29,13 @@ The project is at the very early stage of its development. It only runs in a ter
 * on
 * near
 * facing
+* lonely
 
 ## Not (yet) supported words
 * all
 * empty
 * more
 * not
-* lonely
 * make (Garden 10)
 * word
 * up/right (Forest E, 6, 8)

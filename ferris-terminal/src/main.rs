@@ -112,6 +112,16 @@ fn print_level(level: &Level, stdout: &mut termion::raw::RawTerminal<std::io::St
                         )
                         .unwrap();
                     }
+                    QualifiedNoun::LonelyNoun(noun) => {
+                        write!(
+                            stdout,
+                            "{}  - Lonely {:?} is {:?}",
+                            termion::cursor::Goto(1, line_number.try_into().unwrap()),
+                            noun,
+                            qualified_noun_is_nominals_group_rule.nominals,
+                        )
+                        .unwrap();
+                    }
                 }
             }
         }
